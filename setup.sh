@@ -80,7 +80,12 @@ echo
 read -rp "¿Cargar datos de DEMO (3 clientes de ejemplo con historial)? [s/N]: " LOAD_DEMO
 LOAD_DEMO="${LOAD_DEMO:-n}"
 
-if [ -n "$DOMAIN" ]; then PRIMARY_HOST="$DOMAIN"; SCHEME="https"; else PRIMARY_HOST="${PUBLIC_IP:-localhost}"; SCHEME="http"; fi
+if [ -n "$DOMAIN" ]; then
+    PRIMARY_HOST="$DOMAIN"; SCHEME="https"; SSL_REDIRECT="True"; HSTS_SECONDS="3600"
+else
+    # Solo IP (sin certificado): no forzar HTTPS ni HSTS o la web quedaría inaccesible.
+    PRIMARY_HOST="${PUBLIC_IP:-localhost}"; SCHEME="http"; SSL_REDIRECT="False"; HSTS_SECONDS="0"
+fi
 
 # ---------------------------------------------------------------------------
 # 2. Paquetes del sistema
@@ -137,6 +142,10 @@ CSRF_TRUSTED_ORIGINS='${CSRF_ORIGINS}'
 SITE_NAME=TopTrack
 SITE_TAGLINE=FSC Top Nutrition
 SUPPORT_EMAIL=info@fsctopnutrition.com
+
+# Seguridad HTTPS: solo se fuerza si hay dominio (con IP no hay certificado).
+SECURE_SSL_REDIRECT=${SSL_REDIRECT}
+SECURE_HSTS_SECONDS=${HSTS_SECONDS}
 
 # Base de datos PostgreSQL
 DATABASE_URL=postgres://toptrack@localhost:5432/toptrack
