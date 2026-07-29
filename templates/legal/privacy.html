@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Política de privacidad · {{ SITE_NAME }}{% endblock %}
+{% block public_content %}
+<div class="max-w-2xl mx-auto px-4 py-16 text-gray-300">
+    <a href="{% url 'accounts:login' %}" class="text-sm text-brand-400 hover:text-brand-300">&larr; Volver</a>
+    <h1 class="mt-4 text-3xl font-extrabold text-white">Política de privacidad</h1>
+    <p class="mt-1 text-sm text-gray-500">Actualizada en {{ updated }}.</p>
+    <div class="mt-6 space-y-4 text-sm leading-relaxed">
+        <p>{{ SITE_NAME }} ({{ SITE_TAGLINE }}) trata los datos de sus clientes con la única
+        finalidad de gestionar su entrenamiento personal: sesiones, bonos, métricas de
+        progreso y planes de entrenamiento y alimentación.</p>
+        <p>Los datos se almacenan de forma segura y no se ceden a terceros. Cada cliente
+        solo puede acceder a su propia información. Puedes ejercer tus derechos de acceso,
+        rectificación y supresión escribiendo a {{ SUPPORT_EMAIL }}.</p>
+        <p>En el caso de menores de edad (perfil de futbolista), el tratamiento se realiza
+        con el consentimiento de su tutor legal, cuyos datos de contacto se conservan a tal
+        efecto.</p>
+    </div>
+</div>
+{% endblock %}

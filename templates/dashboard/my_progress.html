@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Mi progreso · {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Mi progreso{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-3xl mx-auto">
+
+    {% if client.shows_body_composition %}
+    <div class="card p-5" data-chart-wrap>
+        <h3 class="section-title mb-4">Composición corporal</h3>
+        {% if body_measurements %}
+        <div class="relative h-64"><canvas id="chart-body"></canvas></div>
+        <div class="mt-4 grid grid-cols-3 gap-3 text-center">
+            {% with last=body_measurements.0 %}
+            <div class="rounded-xl bg-surface-secondary p-3"><p class="text-xs text-gray-500">Peso</p><p class="text-lg font-bold text-white">{{ last.weight_kg }} kg</p></div>
+            <div class="rounded-xl bg-surface-secondary p-3"><p class="text-xs text-gray-500">% grasa</p><p class="text-lg font-bold text-white">{{ last.body_fat_pct|default:"—" }}</p></div>
+            <div class="rounded-xl bg-surface-secondary p-3"><p class="text-xs text-gray-500">% músculo</p><p class="text-lg font-bold text-white">{{ last.muscle_mass_pct|default:"—" }}</p></div>
+            {% endwith %}
+        </div>
+        {% else %}<p class="text-sm text-gray-500">Todavía no hay mediciones registradas.</p>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if client.shows_strength_prs %}
+    <div class="card p-5" data-chart-wrap>
+        <h3 class="section-title mb-4">Fuerza</h3>
+        {% if strength_chart %}
+        <div class="relative h-64"><canvas id="chart-strength"></canvas></div>
+        <div class="mt-4 flex flex-wrap gap-2">
+            {% for s in strength_chart %}
+            <div class="rounded-xl bg-surface-secondary px-3 py-2">
+                <p class="text-xs text-gray-500">{{ s.name }}</p>
+                <p class="text-sm font-bold text-brand-400">Récord: {{ s.best }} kg</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}<p class="text-sm text-gray-500">Aún no hay récords de fuerza.</p>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if client.shows_endurance_tests %}
+    <div class="card p-5" data-chart-wrap>
+        <h3 class="section-title mb-4">Tests físicos</h3>
+        {% if endurance_chart %}
+        <div class="relative h-64"><canvas id="chart-endurance"></canvas></div>
+        <div class="mt-4 flex flex-wrap gap-2">
+            {% for t in endurance_chart %}
+            <div class="rounded-xl bg-surface-secondary px-3 py-2">
+                <p class="text-xs text-gray-500">{{ t.name }}</p>
+                <p class="text-sm font-bold text-brand-400">Mejor: {{ t.best }} {{ t.unit }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}<p class="text-sm text-gray-500">Aún no hay tests registrados.</p>{% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% if client.shows_body_composition %}{{ body_chart|json_script:"data-body" }}{% endif %}
+{% if client.shows_strength_prs %}{{ strength_chart|json_script:"data-strength" }}{% endif %}
+{% if client.shows_endurance_tests %}{{ endurance_chart|json_script:"data-endurance" }}{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/toptrack-charts.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!window.TopTrackCharts) return;
+        TopTrackCharts.renderBody('chart-body', 'data-body');
+        TopTrackCharts.renderMulti('chart-strength', 'data-strength');
+        TopTrackCharts.renderMulti('chart-endurance', 'data-endurance');
+    });
+</script>
+{% endblock %}

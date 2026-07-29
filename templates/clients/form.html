@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{% if is_create %}Nuevo cliente{% else %}Editar{% endif %} · {{ SITE_NAME }}{% endblock %}
+{% block page_title %}{% if is_create %}Nuevo cliente{% else %}Editar cliente{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto" x-data="{ ptype: '{{ form.profile_type.value|default:'completo' }}' }">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-300">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Datos de acceso</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% include 'clients/_field.html' with field=form.first_name %}
+                {% include 'clients/_field.html' with field=form.last_name %}
+                {% include 'clients/_field.html' with field=form.email %}
+                {% include 'clients/_field.html' with field=form.phone %}
+            </div>
+            {% include 'clients/_field.html' with field=form.initial_password %}
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Perfil</h2>
+            <div @change="ptype = $event.target.value">
+                {% include 'clients/_field.html' with field=form.profile_type %}
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% include 'clients/_field.html' with field=form.start_date %}
+                <label class="flex items-center gap-2.5 text-sm font-medium text-gray-300 sm:mt-8">
+                    {{ form.active }} {{ form.active.label }}
+                </label>
+            </div>
+            {% include 'clients/_field.html' with field=form.goal %}
+        </div>
+
+        <div class="card p-6 space-y-4" x-show="ptype === 'futbolista'" x-cloak>
+            <h2 class="section-title">Datos de futbolista</h2>
+            <p class="text-xs text-gray-500 -mt-2">Son menores: se guarda el contacto del tutor legal.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% include 'clients/_field.html' with field=form.birth_date %}
+                {% include 'clients/_field.html' with field=form.position %}
+                {% include 'clients/_field.html' with field=form.guardian_name %}
+                {% include 'clients/_field.html' with field=form.guardian_phone %}
+            </div>
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Notas internas</h2>
+            <p class="text-xs text-gray-500 -mt-2">Privadas del entrenador. El cliente nunca las ve.</p>
+            {{ form.internal_notes }}
+            {% for e in form.internal_notes.errors %}<p class="text-xs text-red-400">{{ e }}</p>{% endfor %}
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <a href="{% if client %}{% url 'clients:detail' client.pk %}{% else %}{% url 'clients:list' %}{% endif %}" class="btn-ghost">Cancelar</a>
+            <button type="submit" class="btn-primary">{% if is_create %}Crear cliente{% else %}Guardar cambios{% endif %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

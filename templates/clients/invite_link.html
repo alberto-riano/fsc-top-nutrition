@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Invitación · {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Enlace de invitación{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="card p-6" x-data="{ copied: false }">
+        <h2 class="section-title mb-1">Invitar a {{ client.full_name }}</h2>
+        <p class="text-sm text-gray-400 mb-4">
+            Comparte este enlace con el cliente (WhatsApp, email...). Al abrirlo, establecerá su
+            contraseña y su cuenta quedará activa. El enlace es de un solo uso.
+        </p>
+        <div class="flex gap-2">
+            <input type="text" readonly value="{{ invite_url }}" x-ref="link" class="input flex-1 text-xs">
+            <button type="button" class="btn-primary"
+                    @click="navigator.clipboard.writeText($refs.link.value); copied = true; setTimeout(() => copied = false, 2000)">
+                <span x-show="!copied">Copiar</span>
+                <span x-show="copied" x-cloak>¡Copiado!</span>
+            </button>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <a href="{% url 'clients:detail' client.pk %}" class="btn-ghost">Volver a la ficha</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

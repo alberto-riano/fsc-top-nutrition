@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Inicio · {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Hola, {{ client.user.first_name|default:"" }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-3xl mx-auto">
+
+    <!-- Bono activo -->
+    {% if active_bono %}
+    <div class="card p-6 flex items-center gap-6">
+        {% with pct=active_bono.progress_pct left=active_bono.sessions_left %}
+        <div class="relative h-24 w-24 flex-shrink-0">
+            <svg viewBox="0 0 36 36" class="h-24 w-24 -rotate-90">
+                <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#262626" stroke-width="3"></circle>
+                <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#22c55e" stroke-width="3"
+                        stroke-dasharray="{{ pct }} 100" stroke-linecap="round"></circle>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-2xl font-extrabold text-white">{{ left }}</span>
+                <span class="text-[10px] uppercase text-gray-500">libres</span>
+            </div>
+        </div>
+        {% endwith %}
+        <div class="flex-1">
+            <p class="text-xs uppercase tracking-wide text-brand-400 font-semibold">Tu bono activo</p>
+            <p class="text-lg font-bold text-white">{{ active_bono.get_bono_type_display }}</p>
+            <p class="text-sm text-gray-400 mt-0.5">{{ active_bono.sessions_used }} de {{ active_bono.sessions_total }} sesiones usadas</p>
+            {% if active_bono.expiry_date %}<p class="text-xs text-gray-500 mt-1">Caduca el {{ active_bono.expiry_date|date:"d/m/Y" }}</p>{% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="card p-6 text-center">
+        <p class="text-gray-400">No tienes ningún bono activo ahora mismo.</p>
+        <p class="text-sm text-gray-500 mt-1">Habla con tu entrenador para renovarlo.</p>
+    </div>
+    {% endif %}
+
+    <!-- Accesos -->
+    <div class="grid grid-cols-2 {% if client.shows_plans %}sm:grid-cols-3{% endif %} gap-4">
+        {% if client.shows_metrics %}
+        <a href="{% url 'dashboard:my_progress' %}" class="card card-hover p-5 text-center">
+            <svg class="w-8 h-8 mx-auto text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4"/></svg>
+            <p class="mt-2 text-sm font-semibold text-white">Mi progreso</p>
+        </a>
+        {% endif %}
+        <a href="{% url 'dashboard:my_bonos' %}" class="card card-hover p-5 text-center">
+            <svg class="w-8 h-8 mx-auto text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4"/></svg>
+            <p class="mt-2 text-sm font-semibold text-white">Mis bonos</p>
+        </a>
+        {% if client.shows_plans %}
+        <a href="{% url 'dashboard:my_plans' %}" class="card card-hover p-5 text-center">
+            <svg class="w-8 h-8 mx-auto text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p class="mt-2 text-sm font-semibold text-white">Mis planes</p>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Últimas métricas -->
+    {% if client.shows_body_composition and latest_body %}
+    <div class="card p-5" data-chart-wrap>
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="section-title">Tu evolución</h3>
+            <span class="text-sm text-gray-400">Último peso: <span class="text-white font-semibold">{{ latest_body.weight_kg }} kg</span></span>
+        </div>
+        <div class="relative h-56"><canvas id="chart-body"></canvas></div>
+    </div>
+    {% endif %}
+
+    <!-- Planes vigentes -->
+    {% if client.shows_plans %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {% if active_routine %}
+        <a href="{% url 'dashboard:my_plans' %}" class="card card-hover p-5">
+            <span class="badge badge-green">Rutina</span>
+            <p class="mt-2 font-semibold text-white">{{ active_routine.title }}</p>
+            <p class="text-xs text-gray-500">{{ active_routine.date|date:"d/m/Y" }}</p>
+        </a>
+        {% endif %}
+        {% if active_nutrition %}
+        <a href="{% url 'dashboard:my_plans' %}" class="card card-hover p-5">
+            <span class="badge" style="background:rgba(59,130,246,.15);color:#93c5fd">Alimentación</span>
+            <p class="mt-2 font-semibold text-white">{{ active_nutrition.title }}</p>
+            <p class="text-xs text-gray-500">{{ active_nutrition.date|date:"d/m/Y" }}</p>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% if client.shows_body_composition %}{{ body_chart|json_script:"data-body" }}{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if client.shows_body_composition %}
+<script src="{% static 'js/toptrack-charts.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.TopTrackCharts) TopTrackCharts.renderBody('chart-body', 'data-body');
+    });
+</script>
+{% endif %}
+{% endblock %}

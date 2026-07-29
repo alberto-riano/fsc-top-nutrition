@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Términos · {{ SITE_NAME }}{% endblock %}
+{% block public_content %}
+<div class="max-w-2xl mx-auto px-4 py-16 text-gray-300">
+    <a href="{% url 'accounts:login' %}" class="text-sm text-brand-400 hover:text-brand-300">&larr; Volver</a>
+    <h1 class="mt-4 text-3xl font-extrabold text-white">Términos de uso</h1>
+    <p class="mt-1 text-sm text-gray-500">Actualizados en {{ updated }}.</p>
+    <div class="mt-6 space-y-4 text-sm leading-relaxed">
+        <p>{{ SITE_NAME }} es una herramienta privada de seguimiento para los clientes de
+        {{ SITE_TAGLINE }}. El acceso es personal e intransferible.</p>
+        <p>La información de progreso (métricas, récords, tests) tiene carácter orientativo
+        y no sustituye el criterio profesional del entrenador ni una valoración médica.</p>
+        <p>Para cualquier duda, contacta con {{ SUPPORT_EMAIL }}.</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% comment %}Enlaces de navegación según el rol. app_name activo => resaltado.{% endcomment %}
+{% with app=request.resolver_match.app_name url=request.resolver_match.url_name profile=user.client_profile %}
+{% if user.is_trainer %}
+    <a href="{% url 'dashboard:home' %}"
+       class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold {% if app == 'dashboard' %}bg-brand-500/10 text-brand-300{% else %}text-gray-400 hover:bg-surface-secondary hover:text-white{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Panel
+    </a>
+    <a href="{% url 'clients:list' %}"
+       class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold {% if app == 'clients' %}bg-brand-500/10 text-brand-300{% else %}text-gray-400 hover:bg-surface-secondary hover:text-white{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        Clientes
+    </a>
+    <a href="{% url 'clients:create' %}"
+       class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold {% if url == 'create' and app == 'clients' %}bg-brand-500/10 text-brand-300{% else %}text-gray-400 hover:bg-surface-secondary hover:text-white{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+        Nuevo cliente
+    </a>
+{% else %}
+    <a href="{% url 'dashboard:home' %}"
+       class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold {% if app == 'dashboard' and url == 'home' %}bg-brand-500/10 text-brand-300{% else %}text-gray-400 hover:bg-surface-secondary hover:text-white{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Inicio
+    </a>
+    {% if profile.shows_metrics %}
+    <a href="{% url 'dashboard:my_progress' %}"
+       class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold {% if url == 'my_progress' %}bg-brand-500/10 text-brand-300{% else %}text-gray-400 hover:bg-surface-secondary hover:text-white{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+        Mi progreso
+    </a>
+    {% endif %}
+    <a href="{% url 'dashboard:my_bonos' %}"
+       class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold {% if url == 'my_bonos' %}bg-brand-500/10 text-brand-300{% else %}text-gray-400 hover:bg-surface-secondary hover:text-white{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        Mis bonos
+    </a>
+    {% if profile.shows_plans %}
+    <a href="{% url 'dashboard:my_plans' %}"
+       class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold {% if url == 'my_plans' %}bg-brand-500/10 text-brand-300{% else %}text-gray-400 hover:bg-surface-secondary hover:text-white{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Mis planes
+    </a>
+    {% endif %}
+{% endif %}
+{% endwith %}

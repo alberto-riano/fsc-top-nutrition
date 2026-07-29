@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+{% load static humanize %}
+{% block title %}{{ client.full_name }} · {{ SITE_NAME }}{% endblock %}
+{% block page_title %}{{ client.full_name }}{% endblock %}
+{% block header_actions %}
+<a href="{% url 'clients:edit' client.pk %}" class="btn-secondary">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+    <span class="hidden sm:inline">Editar</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div x-data="{ tab: '{{ tab }}' }" class="space-y-5">
+
+    <!-- Cabecera del cliente -->
+    <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+        {% if client.user.avatar %}
+        <img src="{{ client.user.avatar.url }}" class="h-16 w-16 rounded-2xl object-cover" alt="">
+        {% else %}
+        <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+            <span class="text-xl font-extrabold text-black">{{ client.initials }}</span>
+        </div>
+        {% endif %}
+        <div class="flex-1 min-w-0">
+            <h2 class="text-xl font-extrabold text-white">{{ client.full_name }}</h2>
+            <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                {% include 'clients/_profile_badge.html' with client=client %}
+                {% if not client.active %}<span class="badge badge-gray">Inactivo</span>{% endif %}
+                {% if client.user.phone %}<span class="text-sm text-gray-400">{{ client.user.phone }}</span>{% endif %}
+                <span class="text-sm text-gray-500">·</span>
+                <span class="text-sm text-gray-400">{{ client.user.email }}</span>
+            </div>
+            {% if client.is_football %}
+            <p class="mt-1 text-sm text-gray-400">
+                {% if client.age %}{{ client.age }} años · {% endif %}{{ client.position|default:"Sin posición" }}
+                · Tutor: {{ client.guardian_name }} {% if client.guardian_phone %}({{ client.guardian_phone }}){% endif %}
+            </p>
+            {% endif %}
+        </div>
+        {% if active_bono %}
+        <div class="text-center px-4">
+            <p class="text-3xl font-extrabold {% if client.low_sessions_alert %}text-amber-400{% else %}text-brand-400{% endif %}">{{ active_bono.sessions_left }}</p>
+            <p class="text-[11px] uppercase tracking-wide text-gray-500">sesiones libres</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pestañas -->
+    <div class="flex gap-1 overflow-x-auto border-b border-surface-border">
+        {% include 'clients/_tab.html' with key='resumen' label='Resumen' %}
+        {% include 'clients/_tab.html' with key='bonos' label='Sesiones y bonos' %}
+        {% if client.shows_metrics %}{% include 'clients/_tab.html' with key='metricas' label='Métricas' %}{% endif %}
+        {% if client.shows_plans %}{% include 'clients/_tab.html' with key='planes' label='Planes' %}{% endif %}
+        {% include 'clients/_tab.html' with key='notas' label='Notas' %}
+    </div>
+
+    <!-- RESUMEN -->
+    <div x-show="tab === 'resumen'" class="space-y-5">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div class="card p-5">
+                <h3 class="section-title mb-3">Objetivo</h3>
+                <p class="text-sm text-gray-300 whitespace-pre-line">{{ client.goal|default:"Sin objetivo definido." }}</p>
+                <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div><dt class="text-gray-500">Alta</dt><dd class="text-gray-200">{{ client.start_date|date:"d/m/Y" }}</dd></div>
+                    <div><dt class="text-gray-500">Sesiones totales</dt><dd class="text-gray-200">{{ session_count }}</dd></div>
+                </dl>
+            </div>
+            <div class="card p-5">
+                <h3 class="section-title mb-3">Acciones rápidas</h3>
+                <div class="space-y-2.5">
+                    <form method="post" action="{% url 'bonos:mark_today' client.pk %}"
+                          data-confirm="¿Marcar una sesión de hoy en el bono activo?" data-confirm-label="Marcar sesión">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-primary w-full" {% if not active_bono %}disabled{% endif %}>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Marcar sesión de hoy
+                        </button>
+                    </form>
+                    {% if not active_bono %}<p class="text-xs text-amber-400">No hay bono activo. Crea uno en «Sesiones y bonos».</p>{% endif %}
+                    <a href="{% url 'clients:invite_link' client.pk %}" class="btn-secondary w-full">Generar enlace de invitación</a>
+                    {% if client.shows_body_composition %}<a href="{% url 'metrics:body_create' client.pk %}" class="btn-secondary w-full">+ Medición corporal</a>{% endif %}
+                    {% if client.shows_strength_prs %}<a href="{% url 'metrics:pr_create' client.pk %}" class="btn-secondary w-full">+ Récord de fuerza</a>{% endif %}
+                    {% if client.shows_endurance_tests %}<a href="{% url 'metrics:test_create' client.pk %}" class="btn-secondary w-full">+ Test físico</a>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SESIONES Y BONOS -->
+    <div x-show="tab === 'bonos'" class="space-y-5" x-cloak>
+        <div class="flex items-center justify-between">
+            <h3 class="section-title">Bonos</h3>
+            <a href="{% url 'bonos:create' client.pk %}" class="btn-primary">+ Nuevo bono</a>
+        </div>
+        {% for b in bonos %}
+        <div class="card p-5">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <p class="font-semibold text-white">{{ b.get_bono_type_display }}
+                        {% include 'components/bono_status.html' with bono=b %}
+                    </p>
+                    <p class="text-sm text-gray-400 mt-0.5">
+                        {{ b.sessions_used }}/{{ b.sessions_total }} usadas · quedan {{ b.sessions_left }}
+                        {% if b.price %}· {{ b.price }} €{% endif %}
+                        {% if b.expiry_date %}· caduca {{ b.expiry_date|date:"d/m/Y" }}{% endif %}
+                    </p>
+                </div>
+                <div class="flex items-center gap-1">
+                    <a href="{% url 'bonos:session_create' client.pk %}?bono={{ b.pk }}" class="btn-ghost !px-2" title="Añadir sesión">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    </a>
+                    <a href="{% url 'bonos:edit' b.pk %}" class="btn-ghost !px-2" title="Editar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </a>
+                    <form method="post" action="{% url 'bonos:archive' b.pk %}">{% csrf_token %}
+                        <button class="btn-ghost !px-2" title="{% if b.archived %}Reactivar{% else %}Archivar{% endif %}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'bonos:delete' b.pk %}" data-confirm="¿Eliminar este bono y todas sus sesiones?" data-confirm-label="Eliminar">{% csrf_token %}
+                        <button class="btn-ghost !px-2 text-red-400" title="Eliminar">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="mt-3 h-2 rounded-full bg-surface-tertiary overflow-hidden">
+                <div class="h-full rounded-full bg-brand-500" style="width: {{ b.progress_pct }}%"></div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="card p-8 text-center text-gray-400">Aún no hay bonos. <a href="{% url 'bonos:create' client.pk %}" class="text-brand-400">Crear el primero</a>.</div>
+        {% endfor %}
+
+        <div class="flex items-center justify-between pt-2">
+            <h3 class="section-title">Historial de sesiones</h3>
+            <a href="{% url 'bonos:session_create' client.pk %}" class="btn-secondary">+ Sesión</a>
+        </div>
+        <div class="card divide-y divide-surface-border">
+            {% for s in sessions %}
+            <div class="flex items-center justify-between p-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-200">{{ s.date|date:"D d/m/Y H:i" }}</p>
+                    <p class="text-xs text-gray-500">{{ s.get_session_type_display }}{% if s.notes %} · {{ s.notes }}{% endif %}</p>
+                </div>
+                <form method="post" action="{% url 'bonos:session_delete' s.pk %}" data-confirm="¿Eliminar esta sesión? Se devolverá al contador del bono." data-confirm-label="Eliminar">{% csrf_token %}
+                    <button class="btn-ghost !px-2 text-red-400" title="Eliminar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                </form>
+            </div>
+            {% empty %}
+            <p class="p-8 text-center text-gray-500">Sin sesiones registradas.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- METRICAS -->
+    {% if client.shows_metrics %}
+    <div x-show="tab === 'metricas'" class="space-y-6" x-cloak>
+        {% if client.shows_body_composition %}
+        <div class="card p-5" data-chart-wrap>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="section-title">Composición corporal</h3>
+                <a href="{% url 'metrics:body_create' client.pk %}" class="btn-secondary">+ Medición</a>
+            </div>
+            <div class="relative h-64"><canvas id="chart-body"></canvas></div>
+            <div class="mt-4 overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead><tr class="text-left text-gray-500 border-b border-surface-border">
+                        <th class="py-2 pr-3">Fecha</th><th class="py-2 pr-3">Peso</th><th class="py-2 pr-3">% grasa</th><th class="py-2 pr-3">% músculo</th><th></th>
+                    </tr></thead>
+                    <tbody>
+                    {% for m in body_measurements %}
+                        <tr class="border-b border-surface-border/50">
+                            <td class="py-2 pr-3 text-gray-300">{{ m.date|date:"d/m/y" }}</td>
+                            <td class="py-2 pr-3 text-white font-medium">{{ m.weight_kg }} kg</td>
+                            <td class="py-2 pr-3 text-gray-300">{{ m.body_fat_pct|default:"—" }}</td>
+                            <td class="py-2 pr-3 text-gray-300">{{ m.muscle_mass_pct|default:"—" }}</td>
+                            <td class="py-2 text-right">
+                                <form method="post" action="{% url 'metrics:body_delete' m.pk %}" data-confirm="¿Eliminar esta medición?" data-confirm-label="Eliminar">{% csrf_token %}
+                                    <button class="text-red-400 hover:text-red-300 text-xs">Borrar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}<tr><td colspan="5" class="py-4 text-center text-gray-500">Sin mediciones.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if client.shows_strength_prs %}
+        <div class="card p-5" data-chart-wrap>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="section-title">Fuerza (PRs)</h3>
+                <a href="{% url 'metrics:pr_create' client.pk %}" class="btn-secondary">+ Récord</a>
+            </div>
+            <div class="relative h-64"><canvas id="chart-strength"></canvas></div>
+            <div class="mt-4 overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead><tr class="text-left text-gray-500 border-b border-surface-border">
+                        <th class="py-2 pr-3">Fecha</th><th class="py-2 pr-3">Ejercicio</th><th class="py-2 pr-3">Peso</th><th class="py-2 pr-3">Reps</th><th></th>
+                    </tr></thead>
+                    <tbody>
+                    {% for pr in strength_prs %}
+                        <tr class="border-b border-surface-border/50">
+                            <td class="py-2 pr-3 text-gray-300">{{ pr.date|date:"d/m/y" }}</td>
+                            <td class="py-2 pr-3 text-white">{{ pr.exercise.name }}</td>
+                            <td class="py-2 pr-3 text-white font-medium">{{ pr.weight_kg }} kg</td>
+                            <td class="py-2 pr-3 text-gray-300">{{ pr.reps }}</td>
+                            <td class="py-2 text-right">
+                                <form method="post" action="{% url 'metrics:pr_delete' pr.pk %}" data-confirm="¿Eliminar este récord?" data-confirm-label="Eliminar">{% csrf_token %}
+                                    <button class="text-red-400 hover:text-red-300 text-xs">Borrar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}<tr><td colspan="5" class="py-4 text-center text-gray-500">Sin récords.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if client.shows_endurance_tests %}
+        <div class="card p-5" data-chart-wrap>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="section-title">Tests físicos</h3>
+                <a href="{% url 'metrics:test_create' client.pk %}" class="btn-secondary">+ Test</a>
+            </div>
+            <div class="relative h-64"><canvas id="chart-endurance"></canvas></div>
+            <div class="mt-4 overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead><tr class="text-left text-gray-500 border-b border-surface-border">
+                        <th class="py-2 pr-3">Fecha</th><th class="py-2 pr-3">Test</th><th class="py-2 pr-3">Valor</th><th></th>
+                    </tr></thead>
+                    <tbody>
+                    {% for t in endurance_tests %}
+                        <tr class="border-b border-surface-border/50">
+                            <td class="py-2 pr-3 text-gray-300">{{ t.date|date:"d/m/y" }}</td>
+                            <td class="py-2 pr-3 text-white">{{ t.test_type.name }}</td>
+                            <td class="py-2 pr-3 text-white font-medium">{{ t.value }} {{ t.test_type.unit_short }}</td>
+                            <td class="py-2 text-right">
+                                <form method="post" action="{% url 'metrics:test_delete' t.pk %}" data-confirm="¿Eliminar este test?" data-confirm-label="Eliminar">{% csrf_token %}
+                                    <button class="text-red-400 hover:text-red-300 text-xs">Borrar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}<tr><td colspan="4" class="py-4 text-center text-gray-500">Sin tests.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- PLANES -->
+    {% if client.shows_plans %}
+    <div x-show="tab === 'planes'" class="space-y-5" x-cloak>
+        <div class="flex items-center justify-between">
+            <h3 class="section-title">Planes</h3>
+            <a href="{% url 'plans:create' client.pk %}" class="btn-primary">+ Nuevo plan</a>
+        </div>
+        {% for p in plans %}
+        <div class="card p-5 {% if p.archived %}opacity-60{% endif %}">
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <p class="font-semibold text-white">{{ p.title }}
+                        {% if p.is_routine %}<span class="badge badge-green">Rutina</span>{% else %}<span class="badge" style="background:rgba(59,130,246,.15);color:#93c5fd">Alimentación</span>{% endif %}
+                        {% if p.archived %}<span class="badge badge-gray">Archivado</span>{% endif %}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ p.date|date:"d/m/Y" }}</p>
+                </div>
+                <div class="flex items-center gap-1">
+                    {% if p.pdf %}<a href="{% url 'plans:download' p.pk %}" class="btn-ghost !px-2" title="Descargar PDF">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></a>{% endif %}
+                    <a href="{% url 'plans:edit' p.pk %}" class="btn-ghost !px-2" title="Editar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></a>
+                    <form method="post" action="{% url 'plans:archive' p.pk %}">{% csrf_token %}
+                        <button class="btn-ghost !px-2" title="{% if p.archived %}Reactivar{% else %}Archivar{% endif %}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/></svg></button>
+                    </form>
+                    <form method="post" action="{% url 'plans:delete' p.pk %}" data-confirm="¿Eliminar este plan?" data-confirm-label="Eliminar">{% csrf_token %}
+                        <button class="btn-ghost !px-2 text-red-400" title="Eliminar">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                    </form>
+                </div>
+            </div>
+            {% if p.content %}<p class="mt-3 text-sm text-gray-300 whitespace-pre-line line-clamp-4">{{ p.content }}</p>{% endif %}
+        </div>
+        {% empty %}
+        <div class="card p-8 text-center text-gray-400">Sin planes. <a href="{% url 'plans:create' client.pk %}" class="text-brand-400">Crear el primero</a>.</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- NOTAS -->
+    <div x-show="tab === 'notas'" class="space-y-4" x-cloak>
+        <div class="card p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="section-title">Notas internas</h3>
+                <a href="{% url 'clients:edit' client.pk %}" class="btn-secondary">Editar</a>
+            </div>
+            <p class="text-xs text-gray-500 mb-3">Privadas del entrenador. El cliente nunca las ve.</p>
+            <p class="text-sm text-gray-300 whitespace-pre-line">{{ client.internal_notes|default:"Sin notas." }}</p>
+        </div>
+    </div>
+</div>
+
+{{ body_chart|json_script:"data-body" }}
+{{ strength_chart|json_script:"data-strength" }}
+{{ endurance_chart|json_script:"data-endurance" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/toptrack-charts.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!window.TopTrackCharts) return;
+        TopTrackCharts.renderBody('chart-body', 'data-body');
+        TopTrackCharts.renderMulti('chart-strength', 'data-strength');
+        TopTrackCharts.renderMulti('chart-endurance', 'data-endurance');
+    });
+</script>
+{% endblock %}

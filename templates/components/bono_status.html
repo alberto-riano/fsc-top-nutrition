@@ -1,0 +1,5 @@
+{% comment %}Badge de estado de un bono. Uso: {% include 'components/bono_status.html' with bono=b %}{% endcomment %}
+{% if bono.status == 'activo' %}<span class="badge badge-green">Activo</span>
+{% elif bono.status == 'agotado' %}<span class="badge badge-amber">Agotado</span>
+{% elif bono.status == 'caducado' %}<span class="badge badge-red">Caducado</span>
+{% else %}<span class="badge badge-gray">Archivado</span>{% endif %}

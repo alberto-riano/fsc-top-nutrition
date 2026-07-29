@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{% if is_create %}Nuevo bono{% else %}Editar bono{% endif %} · {{ SITE_NAME }}{% endblock %}
+{% block page_title %}{% if is_create %}Nuevo bono{% else %}Editar bono{% endif %}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <p class="text-sm text-gray-400 mb-4">Cliente: <span class="text-white font-medium">{{ client.full_name }}</span></p>
+    <div class="card p-6">
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% include 'components/form_fields.html' %}
+            <div class="pt-2 flex justify-end gap-2">
+                <a href="{% url 'clients:detail' client.pk %}?tab=bonos" class="btn-ghost">Cancelar</a>
+                <button type="submit" class="btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilo base de los controles de formulario, para que incluso los formularios
+   renderizados por Django (p. ej. el reset de contraseña) queden bien en el
+   tema oscuro sin tener que añadir clases a mano. */
+@layer base {
+  input[type="text"], input[type="email"], input[type="password"],
+  input[type="number"], input[type="date"], input[type="datetime-local"],
+  input[type="tel"], input[type="url"], input[type="search"], input[type="file"],
+  select, textarea {
+    @apply block w-full rounded-xl border-surface-border bg-surface-secondary px-3 py-2.5
+           text-sm text-gray-100 placeholder:text-gray-500 shadow-sm
+           focus:border-brand-500 focus:ring-brand-500;
+  }
+  input[type="checkbox"], input[type="radio"] {
+    @apply rounded border-surface-border bg-surface-secondary text-brand-500 focus:ring-brand-500;
+  }
+  input[type="file"] { @apply py-2 text-gray-400; }
+}
+
+/* ===================================================================
+   Componentes reutilizables (tema oscuro verde/negro de FSC Top
+   Nutrition). Centralizados aquí para una estética coherente y para
+   poder re-tematizar cambiando la paleta `brand`/`surface` en
+   tailwind.config.js.
+   =================================================================== */
+@layer components {
+  /* Tarjetas */
+  .card {
+    @apply bg-surface rounded-2xl border border-surface-border shadow-card;
+  }
+  .card-hover {
+    @apply transition-all duration-200 hover:border-brand-700/60 hover:-translate-y-0.5;
+  }
+
+  /* Botones */
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-black shadow-sm transition-colors hover:bg-brand-400 active:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-tertiary disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-surface-secondary px-4 py-2.5 text-sm font-semibold text-gray-100 ring-1 ring-inset ring-surface-border transition-colors hover:bg-surface-border/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-400 transition-colors hover:bg-surface-secondary hover:text-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-400 ring-1 ring-inset ring-red-500/30 transition-colors hover:bg-red-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500;
+  }
+
+  /* Inputs / selects / textareas */
+  .input {
+    @apply block min-h-11 w-full rounded-xl border-surface-border bg-surface-secondary text-sm text-gray-100 placeholder:text-gray-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 disabled:cursor-not-allowed disabled:bg-surface-tertiary disabled:text-gray-500;
+  }
+  .label {
+    @apply block text-sm font-medium text-gray-300 mb-1.5;
+  }
+
+  /* Encabezado de sección */
+  .section-title {
+    @apply text-lg font-bold tracking-tight text-white;
+  }
+
+  /* Badges de estado */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .badge-green { @apply bg-brand-500/15 text-brand-300; }
+  .badge-amber { @apply bg-amber-500/15 text-amber-300; }
+  .badge-red   { @apply bg-red-500/15 text-red-300; }
+  .badge-gray  { @apply bg-white/5 text-gray-400; }
+}
+
+/* Alpine: evitar parpadeo de contenido oculto */
+[x-cloak] {
+  display: none !important;
+}
+
+/* Autofill oscuro (Chrome rellena con fondo blanco por defecto) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f3f4f6;
+  -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset;
+  caret-color: #f3f4f6;
+}
+
+/* Títulos un poco más marcados */
+h1, h2, h3 {
+  letter-spacing: -0.015em;
+}
+
+/* Scrollbar fino y oscuro */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #444; }
+
+.sidebar-link { transition: all 0.15s ease; }

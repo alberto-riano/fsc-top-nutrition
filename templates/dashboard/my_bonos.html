@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Mis bonos · {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Mis bonos{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-3xl mx-auto">
+    {% if active_bono %}
+    <div class="card p-6 flex items-center gap-6 border-brand-700/50">
+        {% with pct=active_bono.progress_pct left=active_bono.sessions_left %}
+        <div class="relative h-24 w-24 flex-shrink-0">
+            <svg viewBox="0 0 36 36" class="h-24 w-24 -rotate-90">
+                <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#262626" stroke-width="3"></circle>
+                <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#22c55e" stroke-width="3" stroke-dasharray="{{ pct }} 100" stroke-linecap="round"></circle>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-2xl font-extrabold text-white">{{ left }}</span>
+                <span class="text-[10px] uppercase text-gray-500">libres</span>
+            </div>
+        </div>
+        {% endwith %}
+        <div>
+            <p class="text-xs uppercase tracking-wide text-brand-400 font-semibold">Bono activo</p>
+            <p class="text-lg font-bold text-white">{{ active_bono.get_bono_type_display }}</p>
+            <p class="text-sm text-gray-400">{{ active_bono.sessions_used }}/{{ active_bono.sessions_total }} usadas</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div>
+        <h3 class="section-title mb-3">Historial de bonos</h3>
+        <div class="space-y-3">
+            {% for b in bonos %}
+            <div class="card p-4 flex items-center justify-between">
+                <div>
+                    <p class="font-semibold text-white">{{ b.get_bono_type_display }} {% include 'components/bono_status.html' with bono=b %}</p>
+                    <p class="text-sm text-gray-400 mt-0.5">{{ b.sessions_used }}/{{ b.sessions_total }} · comprado {{ b.purchase_date|date:"d/m/Y" }}</p>
+                </div>
+                <p class="text-2xl font-extrabold text-brand-400">{{ b.sessions_left }}</p>
+            </div>
+            {% empty %}<div class="card p-8 text-center text-gray-500">Aún no tienes bonos.</div>{% endfor %}
+        </div>
+    </div>
+
+    <div>
+        <h3 class="section-title mb-3">Mis sesiones</h3>
+        <div class="card divide-y divide-surface-border">
+            {% for s in sessions %}
+            <div class="p-4">
+                <p class="text-sm font-medium text-gray-200">{{ s.date|date:"D d/m/Y H:i" }}</p>
+                <p class="text-xs text-gray-500">{{ s.get_session_type_display }}{% if s.notes %} · {{ s.notes }}{% endif %}</p>
+            </div>
+            {% empty %}<p class="p-8 text-center text-gray-500">Sin sesiones todavía.</p>{% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

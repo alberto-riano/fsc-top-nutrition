@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Mi cuenta · {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Mi cuenta{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <div class="card p-6">
+        <h2 class="section-title mb-4">Datos personales</h2>
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            {% include 'components/form_fields.html' %}
+            <div class="pt-2 flex justify-end">
+                <button type="submit" class="btn-primary">Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+    <div class="card p-6">
+        <h2 class="section-title mb-1">Seguridad</h2>
+        <p class="text-sm text-gray-400 mb-4">Cambia tu contraseña de acceso.</p>
+        <a href="{% url 'accounts:password_change' %}" class="btn-secondary">Cambiar contraseña</a>
+    </div>
+</div>
+{% endblock %}
