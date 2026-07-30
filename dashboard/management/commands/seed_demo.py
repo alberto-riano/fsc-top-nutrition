@@ -36,10 +36,12 @@ class Command(BaseCommand):
         self._completo()
         self._basico()
         self._futbolista()
+        self._alberto_azul()
 
         self.stdout.write(self.style.SUCCESS(
             'Demo creada. Entrena con: admin@toptrack.local (o el que definiste). '
-            'Clientes de ejemplo: ana@demo.com, luis@demo.com, marco@demo.com (contraseña: demo1234).'))
+            'Clientes de ejemplo: ana@demo.com, luis@demo.com, marco@demo.com, '
+            'alberto@demo.com (contraseña: demo1234).'))
 
     # ------------------------------------------------------------------ utils
     def _trainer(self):
@@ -173,3 +175,46 @@ class Command(BaseCommand):
                                              date=date.today() - timedelta(days=(5 - k) * 25),
                                              value=Decimal(str(round(jv, 2))))
                 jv += random.uniform(0.01, 0.04)
+
+    def _alberto_azul(self):
+        c = self._client('alberto@demo.com', 'Alberto', 'Azul', '600123123', 'completo',
+                         goal='Ganar masa muscular y fuerza en press banca.')
+        self._bono_with_sessions(c, 'individual', 15, 6)
+        if not c.body_measurements.exists():
+            w = 78.0; fat = 20.0; mus = 40.0
+            for k in range(6):
+                BodyMeasurement.objects.create(
+                    client=c, date=date.today() - timedelta(days=(6 - k) * 30),
+                    weight_kg=Decimal(str(round(w, 1))),
+                    body_fat_pct=Decimal(str(round(fat, 1))),
+                    muscle_mass_pct=Decimal(str(round(mus, 1))),
+                    water_pct=Decimal('55.0'), basal_metabolism=1780)
+                w += random.uniform(0.2, 0.6); fat -= random.uniform(0.2, 0.5); mus += random.uniform(0.3, 0.7)
+        if not c.strength_prs.exists():
+            for name, base in [('Press banca', 60), ('Peso muerto', 90), ('Sentadilla', 80)]:
+                ex = Exercise.objects.filter(name=name).first()
+                if not ex:
+                    continue
+                val = base
+                for k in range(5):
+                    StrengthPR.objects.create(
+                        client=c, exercise=ex, date=date.today() - timedelta(days=(5 - k) * 25),
+                        weight_kg=Decimal(str(val)), reps=1)
+                    val += random.randint(3, 7)
+        if not c.endurance_tests.exists():
+            tt = EnduranceTestType.objects.filter(name='Dominadas máximas').first() \
+                or EnduranceTestType.objects.filter(name='Plancha').first()
+            if tt:
+                v = 8
+                for k in range(5):
+                    EnduranceTest.objects.create(
+                        client=c, test_type=tt, date=date.today() - timedelta(days=(5 - k) * 25),
+                        value=Decimal(str(v)))
+                    v += random.randint(1, 3)
+        if not c.plans.exists():
+            Plan.objects.create(client=c, plan_type='rutina', title='Rutina de hipertrofia (push/pull/legs)',
+                                content='Push: press banca, press militar, fondos.\nPull: dominadas, remo, curl.\nLegs: sentadilla, peso muerto, zancadas.',
+                                date=date.today() - timedelta(days=10))
+            Plan.objects.create(client=c, plan_type='alimentacion', title='Plan de volumen 2600 kcal',
+                                content='Superávit calórico moderado.\n2 g proteína/kg.\n5 comidas al día.',
+                                date=date.today() - timedelta(days=10))

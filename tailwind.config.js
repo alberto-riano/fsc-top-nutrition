@@ -29,12 +29,13 @@ module.exports = {
           800: '#166534',
           900: '#14532d',
         },
-        // Superficies oscuras (fondo casi negro y grises muy oscuros).
+        // Superficies oscuras tipo carbón (no negro puro) para dar profundidad:
+        // base = fondo de app, DEFAULT = tarjetas (elevadas), secondary = insets.
         surface: {
-          DEFAULT: '#141414',
-          secondary: '#1a1a1a',
-          tertiary: '#0a0a0a',
-          border: '#262626',
+          DEFAULT: '#181c20',    // tarjetas
+          secondary: '#20262b',  // inputs, insets, hovers
+          tertiary: '#0f1315',   // fondo base de la app
+          border: '#2c343a',     // hairline entre superficies
         },
       },
       fontFamily: {

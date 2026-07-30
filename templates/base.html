@@ -23,7 +23,7 @@
 
     {% block extra_css %}{% endblock %}
 </head>
-<body class="h-full bg-surface-tertiary font-sans antialiased text-gray-300">
+<body class="h-full font-sans antialiased text-gray-300">
     {% if user.is_authenticated %}
     <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
 
@@ -117,7 +117,7 @@
         </div>
     </div>
     {% else %}
-    <div class="min-h-screen bg-surface-tertiary">
+    <div class="min-h-screen">
         {% block public_content %}{% endblock %}
     </div>
     {% endif %}
