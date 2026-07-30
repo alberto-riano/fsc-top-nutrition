@@ -23,15 +23,15 @@
 
     {% block extra_css %}{% endblock %}
 </head>
-<body class="h-full font-sans antialiased text-gray-300">
+<body class="h-full font-sans antialiased text-gray-700">
     {% if user.is_authenticated %}
     <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
 
         <!-- Sidebar (desktop) -->
         <aside class="hidden lg:flex lg:flex-shrink-0">
             <div class="flex w-64 flex-col">
-                <div class="flex min-h-0 flex-1 flex-col border-r border-surface-border bg-surface">
-                    <div class="flex h-16 flex-shrink-0 items-center px-6 border-b border-surface-border">
+                <div class="flex min-h-0 flex-1 flex-col bg-sidebar">
+                    <div class="flex h-16 flex-shrink-0 items-center px-6 border-b border-sidebar-border">
                         <a href="{% url 'dashboard:home' %}" class="flex items-center gap-2.5">
                             <img src="{% static 'img/brand/icon-192.png' %}" alt="{{ SITE_NAME }}" class="h-9 w-9 rounded-lg">
                             <span class="text-lg font-extrabold text-white">{{ SITE_NAME }}</span>
@@ -51,13 +51,13 @@
              x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
              x-transition:leave="transition ease-in-out duration-300 transform"
              x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full"
-             class="fixed top-0 bottom-0 left-0 z-50 w-64 flex flex-col bg-surface shadow-xl lg:hidden" x-cloak>
-            <div class="flex h-16 flex-shrink-0 items-center justify-between px-6 border-b border-surface-border">
+             class="fixed top-0 bottom-0 left-0 z-50 w-64 flex flex-col bg-sidebar shadow-xl lg:hidden" x-cloak>
+            <div class="flex h-16 flex-shrink-0 items-center justify-between px-6 border-b border-sidebar-border">
                 <a href="{% url 'dashboard:home' %}" class="flex items-center gap-2.5" @click="sidebarOpen = false">
                     <img src="{% static 'img/brand/icon-192.png' %}" alt="{{ SITE_NAME }}" class="h-9 w-9 rounded-lg">
                     <span class="text-lg font-extrabold text-white">{{ SITE_NAME }}</span>
                 </a>
-                <button @click="sidebarOpen = false" class="p-1.5 rounded-lg text-gray-400 hover:bg-surface-secondary">
+                <button @click="sidebarOpen = false" class="p-1.5 rounded-lg text-gray-400 hover:bg-white/10">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -74,13 +74,13 @@
 
         <!-- Main -->
         <div class="flex flex-1 flex-col overflow-hidden">
-            <header class="sticky top-0 z-30 flex h-16 flex-shrink-0 border-b border-surface-border bg-surface/80 backdrop-blur-sm">
+            <header class="sticky top-0 z-30 flex h-16 flex-shrink-0 border-b border-gray-200 bg-white/85 backdrop-blur-sm">
                 <div class="flex flex-1 items-center justify-between px-4 sm:px-6 lg:px-8">
-                    <button @click="sidebarOpen = true" class="lg:hidden p-2 -ml-2 rounded-lg text-gray-400 hover:bg-surface-secondary">
+                    <button @click="sidebarOpen = true" class="lg:hidden p-2 -ml-2 rounded-lg text-gray-500 hover:bg-gray-100">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
                     <div class="flex-1 min-w-0">
-                        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white truncate">{% block page_title %}Panel{% endblock %}</h1>
+                        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-gray-900 truncate">{% block page_title %}Panel{% endblock %}</h1>
                     </div>
                     <div class="flex items-center gap-3">
                         {% block header_actions %}{% endblock %}
@@ -91,8 +91,8 @@
             {% if messages %}
             <div class="px-4 sm:px-6 lg:px-8 pt-4 space-y-3">
                 {% for message in messages %}
-                <div class="rounded-xl p-4 border {% if message.tags == 'error' %}bg-red-500/10 border-red-500/30{% elif message.tags == 'warning' %}bg-amber-500/10 border-amber-500/30{% else %}bg-brand-500/10 border-brand-500/30{% endif %}">
-                    <p class="text-sm font-medium {% if message.tags == 'error' %}text-red-300{% elif message.tags == 'warning' %}text-amber-300{% else %}text-brand-300{% endif %}">{{ message }}</p>
+                <div class="rounded-xl p-4 border {% if message.tags == 'error' %}bg-red-50 border-red-200{% elif message.tags == 'warning' %}bg-amber-50 border-amber-200{% else %}bg-brand-50 border-brand-200{% endif %}">
+                    <p class="text-sm font-medium {% if message.tags == 'error' %}text-red-700{% elif message.tags == 'warning' %}text-amber-700{% else %}text-brand-700{% endif %}">{{ message }}</p>
                 </div>
                 {% endfor %}
             </div>
@@ -103,12 +103,12 @@
                 <div class="px-4 sm:px-6 lg:px-8 py-6 flex-1">
                     {% block content %}{% endblock %}
                 </div>
-                <footer class="px-4 sm:px-6 lg:px-8 py-4 border-t border-surface-border">
+                <footer class="px-4 sm:px-6 lg:px-8 py-4 border-t border-gray-200">
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
                         <span>© {% now "Y" %} {{ SITE_NAME }} · {{ SITE_TAGLINE }}</span>
                         <div class="flex items-center gap-4">
-                            <a href="{% url 'privacy' %}" class="hover:text-gray-300 transition-colors">Privacidad</a>
-                            <a href="{% url 'terms' %}" class="hover:text-gray-300 transition-colors">Términos</a>
+                            <a href="{% url 'privacy' %}" class="hover:text-gray-800 transition-colors">Privacidad</a>
+                            <a href="{% url 'terms' %}" class="hover:text-gray-800 transition-colors">Términos</a>
                         </div>
                     </div>
                 </footer>
@@ -125,12 +125,12 @@
     <!-- Modal de confirmación reutilizable: cualquier <form data-confirm="mensaje"> lo usa. -->
     <div x-data="confirmDialog()" x-cloak x-show="open" class="fixed inset-0 z-[100] flex items-center justify-center p-4" @keydown.escape.window="cancel()">
         <div class="absolute inset-0 bg-black/70" x-show="open" x-transition.opacity @click="cancel()"></div>
-        <div class="relative w-full max-w-sm rounded-2xl bg-surface border border-surface-border p-6 shadow-xl" x-show="open" x-transition @click.stop>
+        <div class="relative w-full max-w-sm rounded-2xl bg-white border border-gray-200 p-6 shadow-xl" x-show="open" x-transition @click.stop>
             <div class="flex items-start gap-3">
-                <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/15">
-                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-100">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
-                <p class="flex-1 pt-1.5 text-sm text-gray-200" x-text="message"></p>
+                <p class="flex-1 pt-1.5 text-sm text-gray-700" x-text="message"></p>
             </div>
             <div class="mt-6 flex justify-end gap-2">
                 <button type="button" @click="cancel()" class="btn-ghost">Cancelar</button>

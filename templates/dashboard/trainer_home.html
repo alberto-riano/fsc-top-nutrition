@@ -11,19 +11,19 @@
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="card p-5">
             <p class="text-sm text-gray-500">Clientes activos</p>
-            <p class="mt-1 text-3xl font-extrabold text-white">{{ total_clients }}</p>
+            <p class="mt-1 text-3xl font-extrabold text-gray-900">{{ total_clients }}</p>
         </div>
         <div class="card p-5">
             <p class="text-sm text-gray-500">Completo</p>
-            <p class="mt-1 text-3xl font-extrabold text-brand-400">{{ count_completo }}</p>
+            <p class="mt-1 text-3xl font-extrabold text-brand-600">{{ count_completo }}</p>
         </div>
         <div class="card p-5">
             <p class="text-sm text-gray-500">Básico</p>
-            <p class="mt-1 text-3xl font-extrabold text-gray-300">{{ count_basico }}</p>
+            <p class="mt-1 text-3xl font-extrabold text-gray-600">{{ count_basico }}</p>
         </div>
         <div class="card p-5">
             <p class="text-sm text-gray-500">Futbolistas</p>
-            <p class="mt-1 text-3xl font-extrabold" style="color:#93c5fd">{{ count_futbolista }}</p>
+            <p class="mt-1 text-3xl font-extrabold" style="color:#2563eb">{{ count_futbolista }}</p>
         </div>
     </div>
 
@@ -31,14 +31,14 @@
         <!-- Avisos de bonos por agotar -->
         <div class="card p-5">
             <h3 class="section-title mb-3 flex items-center gap-2">
-                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 Bonos por agotar
             </h3>
             {% if low_alerts %}
             <div class="space-y-2">
                 {% for c in low_alerts %}
                 <a href="{% url 'clients:detail' c.pk %}" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-secondary transition-colors">
-                    <span class="text-sm text-gray-200">{{ c.full_name }}</span>
+                    <span class="text-sm text-gray-800">{{ c.full_name }}</span>
                     <span class="badge badge-amber">{{ c.sessions_left }} sesión{{ c.sessions_left|pluralize:"es" }}</span>
                 </a>
                 {% endfor %}
@@ -53,7 +53,7 @@
             <div class="space-y-2">
                 {% for c, b in expiring %}
                 <a href="{% url 'clients:detail' c.pk %}" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-secondary transition-colors">
-                    <span class="text-sm text-gray-200">{{ c.full_name }}</span>
+                    <span class="text-sm text-gray-800">{{ c.full_name }}</span>
                     <span class="badge badge-red">{{ b.expiry_date|date:"d/m/Y" }}</span>
                 </a>
                 {% endfor %}
@@ -66,7 +66,7 @@
     <div>
         <div class="flex items-center justify-between mb-3">
             <h3 class="section-title">Clientes</h3>
-            <a href="{% url 'clients:list' %}" class="text-sm text-brand-400 hover:text-brand-300">Ver todos &rarr;</a>
+            <a href="{% url 'clients:list' %}" class="text-sm text-brand-600 hover:text-brand-600">Ver todos &rarr;</a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             {% for c in clients %}
@@ -75,14 +75,14 @@
                     {% if c.user.avatar %}<img src="{{ c.user.avatar.url }}" class="h-10 w-10 rounded-full object-cover" alt="">
                     {% else %}<div class="h-10 w-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center"><span class="text-xs font-bold text-black">{{ c.initials }}</span></div>{% endif %}
                     <div class="min-w-0">
-                        <p class="text-sm font-semibold text-white truncate">{{ c.full_name }}</p>
+                        <p class="text-sm font-semibold text-gray-900 truncate">{{ c.full_name }}</p>
                         <p class="text-xs text-gray-500">{{ c.sessions_left }} sesiones</p>
                     </div>
                 </div>
             </a>
             {% empty %}
-            <div class="card p-8 text-center col-span-full text-gray-400">
-                Aún no tienes clientes. <a href="{% url 'clients:create' %}" class="text-brand-400">Crea el primero</a>.
+            <div class="card p-8 text-center col-span-full text-gray-500">
+                Aún no tienes clientes. <a href="{% url 'clients:create' %}" class="text-brand-600">Crea el primero</a>.
             </div>
             {% endfor %}
         </div>

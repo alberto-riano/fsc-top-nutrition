@@ -3,8 +3,8 @@ from django import forms
 from .models import Plan
 
 INPUT = (
-    'block w-full rounded-xl border-surface-border bg-surface-secondary px-3 py-2.5 '
-    'text-gray-100 placeholder:text-gray-500 shadow-sm focus:border-brand-500 '
+    'block w-full rounded-xl border-gray-300 bg-white px-3 py-2.5 '
+    'text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-brand-500 '
     'focus:ring-brand-500 sm:text-sm'
 )
 
@@ -26,7 +26,7 @@ class PlanForm(forms.ModelForm):
         for name, field in self.fields.items():
             if isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs['class'] = (
-                    'h-5 w-5 rounded border-surface-border bg-surface-secondary '
+                    'h-5 w-5 rounded border-gray-300 bg-white '
                     'text-brand-500 focus:ring-brand-500')
             else:
                 css = field.widget.attrs.get('class', '')

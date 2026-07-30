@@ -7,7 +7,7 @@
     <form method="post" class="space-y-6">
         {% csrf_token %}
         {% if form.non_field_errors %}
-        <div class="rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-300">{{ form.non_field_errors }}</div>
+        <div class="rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-700">{{ form.non_field_errors }}</div>
         {% endif %}
 
         <div class="card p-6 space-y-4">
@@ -28,7 +28,7 @@
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {% include 'clients/_field.html' with field=form.start_date %}
-                <label class="flex items-center gap-2.5 text-sm font-medium text-gray-300 sm:mt-8">
+                <label class="flex items-center gap-2.5 text-sm font-medium text-gray-600 sm:mt-8">
                     {{ form.active }} {{ form.active.label }}
                 </label>
             </div>
@@ -50,7 +50,7 @@
             <h2 class="section-title">Notas internas</h2>
             <p class="text-xs text-gray-500 -mt-2">Privadas del entrenador. El cliente nunca las ve.</p>
             {{ form.internal_notes }}
-            {% for e in form.internal_notes.errors %}<p class="text-xs text-red-400">{{ e }}</p>{% endfor %}
+            {% for e in form.internal_notes.errors %}<p class="text-xs text-red-600">{{ e }}</p>{% endfor %}
         </div>
 
         <div class="flex justify-end gap-2">

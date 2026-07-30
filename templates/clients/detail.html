@@ -22,16 +22,16 @@
         </div>
         {% endif %}
         <div class="flex-1 min-w-0">
-            <h2 class="text-xl font-extrabold text-white">{{ client.full_name }}</h2>
+            <h2 class="text-xl font-extrabold text-gray-900">{{ client.full_name }}</h2>
             <div class="mt-1.5 flex flex-wrap items-center gap-2">
                 {% include 'clients/_profile_badge.html' with client=client %}
                 {% if not client.active %}<span class="badge badge-gray">Inactivo</span>{% endif %}
-                {% if client.user.phone %}<span class="text-sm text-gray-400">{{ client.user.phone }}</span>{% endif %}
+                {% if client.user.phone %}<span class="text-sm text-gray-500">{{ client.user.phone }}</span>{% endif %}
                 <span class="text-sm text-gray-500">·</span>
-                <span class="text-sm text-gray-400">{{ client.user.email }}</span>
+                <span class="text-sm text-gray-500">{{ client.user.email }}</span>
             </div>
             {% if client.is_football %}
-            <p class="mt-1 text-sm text-gray-400">
+            <p class="mt-1 text-sm text-gray-500">
                 {% if client.age %}{{ client.age }} años · {% endif %}{{ client.position|default:"Sin posición" }}
                 · Tutor: {{ client.guardian_name }} {% if client.guardian_phone %}({{ client.guardian_phone }}){% endif %}
             </p>
@@ -39,7 +39,7 @@
         </div>
         {% if active_bono %}
         <div class="text-center px-4">
-            <p class="text-3xl font-extrabold {% if client.low_sessions_alert %}text-amber-400{% else %}text-brand-400{% endif %}">{{ active_bono.sessions_left }}</p>
+            <p class="text-3xl font-extrabold {% if client.low_sessions_alert %}text-amber-600{% else %}text-brand-600{% endif %}">{{ active_bono.sessions_left }}</p>
             <p class="text-[11px] uppercase tracking-wide text-gray-500">sesiones libres</p>
         </div>
         {% endif %}
@@ -59,10 +59,10 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div class="card p-5">
                 <h3 class="section-title mb-3">Objetivo</h3>
-                <p class="text-sm text-gray-300 whitespace-pre-line">{{ client.goal|default:"Sin objetivo definido." }}</p>
+                <p class="text-sm text-gray-600 whitespace-pre-line">{{ client.goal|default:"Sin objetivo definido." }}</p>
                 <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
-                    <div><dt class="text-gray-500">Alta</dt><dd class="text-gray-200">{{ client.start_date|date:"d/m/Y" }}</dd></div>
-                    <div><dt class="text-gray-500">Sesiones totales</dt><dd class="text-gray-200">{{ session_count }}</dd></div>
+                    <div><dt class="text-gray-500">Alta</dt><dd class="text-gray-800">{{ client.start_date|date:"d/m/Y" }}</dd></div>
+                    <div><dt class="text-gray-500">Sesiones totales</dt><dd class="text-gray-800">{{ session_count }}</dd></div>
                 </dl>
             </div>
             <div class="card p-5">
@@ -76,7 +76,7 @@
                             Marcar sesión de hoy
                         </button>
                     </form>
-                    {% if not active_bono %}<p class="text-xs text-amber-400">No hay bono activo. Crea uno en «Sesiones y bonos».</p>{% endif %}
+                    {% if not active_bono %}<p class="text-xs text-amber-600">No hay bono activo. Crea uno en «Sesiones y bonos».</p>{% endif %}
                     <a href="{% url 'clients:invite_link' client.pk %}" class="btn-secondary w-full">Generar enlace de invitación</a>
                     {% if client.shows_body_composition %}<a href="{% url 'metrics:body_create' client.pk %}" class="btn-secondary w-full">+ Medición corporal</a>{% endif %}
                     {% if client.shows_strength_prs %}<a href="{% url 'metrics:pr_create' client.pk %}" class="btn-secondary w-full">+ Récord de fuerza</a>{% endif %}
@@ -96,10 +96,10 @@
         <div class="card p-5">
             <div class="flex items-center justify-between gap-3">
                 <div>
-                    <p class="font-semibold text-white">{{ b.get_bono_type_display }}
+                    <p class="font-semibold text-gray-900">{{ b.get_bono_type_display }}
                         {% include 'components/bono_status.html' with bono=b %}
                     </p>
-                    <p class="text-sm text-gray-400 mt-0.5">
+                    <p class="text-sm text-gray-500 mt-0.5">
                         {{ b.sessions_used }}/{{ b.sessions_total }} usadas · quedan {{ b.sessions_left }}
                         {% if b.price %}· {{ b.price }} €{% endif %}
                         {% if b.expiry_date %}· caduca {{ b.expiry_date|date:"d/m/Y" }}{% endif %}
@@ -118,7 +118,7 @@
                         </button>
                     </form>
                     <form method="post" action="{% url 'bonos:delete' b.pk %}" data-confirm="¿Eliminar este bono y todas sus sesiones?" data-confirm-label="Eliminar">{% csrf_token %}
-                        <button class="btn-ghost !px-2 text-red-400" title="Eliminar">
+                        <button class="btn-ghost !px-2 text-red-600" title="Eliminar">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
                     </form>
@@ -129,7 +129,7 @@
             </div>
         </div>
         {% empty %}
-        <div class="card p-8 text-center text-gray-400">Aún no hay bonos. <a href="{% url 'bonos:create' client.pk %}" class="text-brand-400">Crear el primero</a>.</div>
+        <div class="card p-8 text-center text-gray-500">Aún no hay bonos. <a href="{% url 'bonos:create' client.pk %}" class="text-brand-600">Crear el primero</a>.</div>
         {% endfor %}
 
         <div class="flex items-center justify-between pt-2">
@@ -140,11 +140,11 @@
             {% for s in sessions %}
             <div class="flex items-center justify-between p-4">
                 <div>
-                    <p class="text-sm font-medium text-gray-200">{{ s.date|date:"D d/m/Y H:i" }}</p>
+                    <p class="text-sm font-medium text-gray-800">{{ s.date|date:"D d/m/Y H:i" }}</p>
                     <p class="text-xs text-gray-500">{{ s.get_session_type_display }}{% if s.notes %} · {{ s.notes }}{% endif %}</p>
                 </div>
                 <form method="post" action="{% url 'bonos:session_delete' s.pk %}" data-confirm="¿Eliminar esta sesión? Se devolverá al contador del bono." data-confirm-label="Eliminar">{% csrf_token %}
-                    <button class="btn-ghost !px-2 text-red-400" title="Eliminar">
+                    <button class="btn-ghost !px-2 text-red-600" title="Eliminar">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     </button>
                 </form>
@@ -173,13 +173,13 @@
                     <tbody>
                     {% for m in body_measurements %}
                         <tr class="border-b border-surface-border/50">
-                            <td class="py-2 pr-3 text-gray-300">{{ m.date|date:"d/m/y" }}</td>
-                            <td class="py-2 pr-3 text-white font-medium">{{ m.weight_kg }} kg</td>
-                            <td class="py-2 pr-3 text-gray-300">{{ m.body_fat_pct|default:"—" }}</td>
-                            <td class="py-2 pr-3 text-gray-300">{{ m.muscle_mass_pct|default:"—" }}</td>
+                            <td class="py-2 pr-3 text-gray-600">{{ m.date|date:"d/m/y" }}</td>
+                            <td class="py-2 pr-3 text-gray-900 font-medium">{{ m.weight_kg }} kg</td>
+                            <td class="py-2 pr-3 text-gray-600">{{ m.body_fat_pct|default:"—" }}</td>
+                            <td class="py-2 pr-3 text-gray-600">{{ m.muscle_mass_pct|default:"—" }}</td>
                             <td class="py-2 text-right">
                                 <form method="post" action="{% url 'metrics:body_delete' m.pk %}" data-confirm="¿Eliminar esta medición?" data-confirm-label="Eliminar">{% csrf_token %}
-                                    <button class="text-red-400 hover:text-red-300 text-xs">Borrar</button>
+                                    <button class="text-red-600 hover:text-red-700 text-xs">Borrar</button>
                                 </form>
                             </td>
                         </tr>
@@ -205,13 +205,13 @@
                     <tbody>
                     {% for pr in strength_prs %}
                         <tr class="border-b border-surface-border/50">
-                            <td class="py-2 pr-3 text-gray-300">{{ pr.date|date:"d/m/y" }}</td>
-                            <td class="py-2 pr-3 text-white">{{ pr.exercise.name }}</td>
-                            <td class="py-2 pr-3 text-white font-medium">{{ pr.weight_kg }} kg</td>
-                            <td class="py-2 pr-3 text-gray-300">{{ pr.reps }}</td>
+                            <td class="py-2 pr-3 text-gray-600">{{ pr.date|date:"d/m/y" }}</td>
+                            <td class="py-2 pr-3 text-gray-900">{{ pr.exercise.name }}</td>
+                            <td class="py-2 pr-3 text-gray-900 font-medium">{{ pr.weight_kg }} kg</td>
+                            <td class="py-2 pr-3 text-gray-600">{{ pr.reps }}</td>
                             <td class="py-2 text-right">
                                 <form method="post" action="{% url 'metrics:pr_delete' pr.pk %}" data-confirm="¿Eliminar este récord?" data-confirm-label="Eliminar">{% csrf_token %}
-                                    <button class="text-red-400 hover:text-red-300 text-xs">Borrar</button>
+                                    <button class="text-red-600 hover:text-red-700 text-xs">Borrar</button>
                                 </form>
                             </td>
                         </tr>
@@ -237,12 +237,12 @@
                     <tbody>
                     {% for t in endurance_tests %}
                         <tr class="border-b border-surface-border/50">
-                            <td class="py-2 pr-3 text-gray-300">{{ t.date|date:"d/m/y" }}</td>
-                            <td class="py-2 pr-3 text-white">{{ t.test_type.name }}</td>
-                            <td class="py-2 pr-3 text-white font-medium">{{ t.value }} {{ t.test_type.unit_short }}</td>
+                            <td class="py-2 pr-3 text-gray-600">{{ t.date|date:"d/m/y" }}</td>
+                            <td class="py-2 pr-3 text-gray-900">{{ t.test_type.name }}</td>
+                            <td class="py-2 pr-3 text-gray-900 font-medium">{{ t.value }} {{ t.test_type.unit_short }}</td>
                             <td class="py-2 text-right">
                                 <form method="post" action="{% url 'metrics:test_delete' t.pk %}" data-confirm="¿Eliminar este test?" data-confirm-label="Eliminar">{% csrf_token %}
-                                    <button class="text-red-400 hover:text-red-300 text-xs">Borrar</button>
+                                    <button class="text-red-600 hover:text-red-700 text-xs">Borrar</button>
                                 </form>
                             </td>
                         </tr>
@@ -266,8 +266,8 @@
         <div class="card p-5 {% if p.archived %}opacity-60{% endif %}">
             <div class="flex items-start justify-between gap-3">
                 <div>
-                    <p class="font-semibold text-white">{{ p.title }}
-                        {% if p.is_routine %}<span class="badge badge-green">Rutina</span>{% else %}<span class="badge" style="background:rgba(59,130,246,.15);color:#93c5fd">Alimentación</span>{% endif %}
+                    <p class="font-semibold text-gray-900">{{ p.title }}
+                        {% if p.is_routine %}<span class="badge badge-green">Rutina</span>{% else %}<span class="badge" style="background:rgba(59,130,246,.12);color:#1d4ed8">Alimentación</span>{% endif %}
                         {% if p.archived %}<span class="badge badge-gray">Archivado</span>{% endif %}
                     </p>
                     <p class="text-xs text-gray-500 mt-0.5">{{ p.date|date:"d/m/Y" }}</p>
@@ -282,15 +282,15 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/></svg></button>
                     </form>
                     <form method="post" action="{% url 'plans:delete' p.pk %}" data-confirm="¿Eliminar este plan?" data-confirm-label="Eliminar">{% csrf_token %}
-                        <button class="btn-ghost !px-2 text-red-400" title="Eliminar">
+                        <button class="btn-ghost !px-2 text-red-600" title="Eliminar">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
                     </form>
                 </div>
             </div>
-            {% if p.content %}<p class="mt-3 text-sm text-gray-300 whitespace-pre-line line-clamp-4">{{ p.content }}</p>{% endif %}
+            {% if p.content %}<p class="mt-3 text-sm text-gray-600 whitespace-pre-line line-clamp-4">{{ p.content }}</p>{% endif %}
         </div>
         {% empty %}
-        <div class="card p-8 text-center text-gray-400">Sin planes. <a href="{% url 'plans:create' client.pk %}" class="text-brand-400">Crear el primero</a>.</div>
+        <div class="card p-8 text-center text-gray-500">Sin planes. <a href="{% url 'plans:create' client.pk %}" class="text-brand-600">Crear el primero</a>.</div>
         {% endfor %}
     </div>
     {% endif %}
@@ -303,7 +303,7 @@
                 <a href="{% url 'clients:edit' client.pk %}" class="btn-secondary">Editar</a>
             </div>
             <p class="text-xs text-gray-500 mb-3">Privadas del entrenador. El cliente nunca las ve.</p>
-            <p class="text-sm text-gray-300 whitespace-pre-line">{{ client.internal_notes|default:"Sin notas." }}</p>
+            <p class="text-sm text-gray-600 whitespace-pre-line">{{ client.internal_notes|default:"Sin notas." }}</p>
         </div>
     </div>
 </div>

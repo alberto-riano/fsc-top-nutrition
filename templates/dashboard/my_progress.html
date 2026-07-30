@@ -13,9 +13,9 @@
         <div class="relative h-64"><canvas id="chart-body"></canvas></div>
         <div class="mt-4 grid grid-cols-3 gap-3 text-center">
             {% with last=body_measurements.0 %}
-            <div class="rounded-xl bg-surface-secondary p-3"><p class="text-xs text-gray-500">Peso</p><p class="text-lg font-bold text-white">{{ last.weight_kg }} kg</p></div>
-            <div class="rounded-xl bg-surface-secondary p-3"><p class="text-xs text-gray-500">% grasa</p><p class="text-lg font-bold text-white">{{ last.body_fat_pct|default:"—" }}</p></div>
-            <div class="rounded-xl bg-surface-secondary p-3"><p class="text-xs text-gray-500">% músculo</p><p class="text-lg font-bold text-white">{{ last.muscle_mass_pct|default:"—" }}</p></div>
+            <div class="rounded-xl bg-surface-secondary p-3"><p class="text-xs text-gray-500">Peso</p><p class="text-lg font-bold text-gray-900">{{ last.weight_kg }} kg</p></div>
+            <div class="rounded-xl bg-surface-secondary p-3"><p class="text-xs text-gray-500">% grasa</p><p class="text-lg font-bold text-gray-900">{{ last.body_fat_pct|default:"—" }}</p></div>
+            <div class="rounded-xl bg-surface-secondary p-3"><p class="text-xs text-gray-500">% músculo</p><p class="text-lg font-bold text-gray-900">{{ last.muscle_mass_pct|default:"—" }}</p></div>
             {% endwith %}
         </div>
         {% else %}<p class="text-sm text-gray-500">Todavía no hay mediciones registradas.</p>{% endif %}
@@ -31,7 +31,7 @@
             {% for s in strength_chart %}
             <div class="rounded-xl bg-surface-secondary px-3 py-2">
                 <p class="text-xs text-gray-500">{{ s.name }}</p>
-                <p class="text-sm font-bold text-brand-400">Récord: {{ s.best }} kg</p>
+                <p class="text-sm font-bold text-brand-600">Récord: {{ s.best }} kg</p>
             </div>
             {% endfor %}
         </div>
@@ -48,7 +48,7 @@
             {% for t in endurance_chart %}
             <div class="rounded-xl bg-surface-secondary px-3 py-2">
                 <p class="text-xs text-gray-500">{{ t.name }}</p>
-                <p class="text-sm font-bold text-brand-400">Mejor: {{ t.best }} {{ t.unit }}</p>
+                <p class="text-sm font-bold text-brand-600">Mejor: {{ t.best }} {{ t.unit }}</p>
             </div>
             {% endfor %}
         </div>

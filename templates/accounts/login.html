@@ -6,15 +6,15 @@
 <div class="flex min-h-screen flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <img src="{% static 'img/brand/icon-192.png' %}" alt="{{ SITE_NAME }}" class="mx-auto h-16 w-16 rounded-2xl shadow-glow">
-        <h1 class="mt-5 text-4xl font-extrabold text-white">{{ SITE_NAME }}</h1>
-        <p class="mt-1 text-sm font-medium text-brand-400 uppercase tracking-widest">{{ SITE_TAGLINE }}</p>
+        <h1 class="mt-5 text-4xl font-extrabold text-gray-900">{{ SITE_NAME }}</h1>
+        <p class="mt-1 text-sm font-medium text-brand-600 uppercase tracking-widest">{{ SITE_TAGLINE }}</p>
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="card p-6 sm:p-8">
             {% if form.errors %}
             <div class="rounded-xl bg-red-500/10 border border-red-500/30 p-4 mb-6">
-                <p class="text-sm text-red-300">Email o contraseña incorrectos.</p>
+                <p class="text-sm text-red-700">Email o contraseña incorrectos.</p>
             </div>
             {% endif %}
 
@@ -28,7 +28,7 @@
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label for="password" class="label mb-0">Contraseña</label>
-                        <a href="{% url 'accounts:password_reset' %}" class="text-sm font-medium text-brand-400 hover:text-brand-300">¿Olvidaste tu contraseña?</a>
+                        <a href="{% url 'accounts:password_reset' %}" class="text-sm font-medium text-brand-600 hover:text-brand-600">¿Olvidaste tu contraseña?</a>
                     </div>
                     <input id="password" name="password" type="password" autocomplete="current-password" required class="input">
                 </div>

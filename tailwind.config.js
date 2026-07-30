@@ -29,13 +29,19 @@ module.exports = {
           800: '#166534',
           900: '#14532d',
         },
-        // Superficies oscuras tipo carbón (no negro puro) para dar profundidad:
-        // base = fondo de app, DEFAULT = tarjetas (elevadas), secondary = insets.
+        // Tema claro: fondo blanco/gris muy claro con tarjetas blancas.
+        // base = fondo de app, DEFAULT = tarjetas, secondary = insets/inputs.
         surface: {
-          DEFAULT: '#181c20',    // tarjetas
-          secondary: '#20262b',  // inputs, insets, hovers
-          tertiary: '#0f1315',   // fondo base de la app
-          border: '#2c343a',     // hairline entre superficies
+          DEFAULT: '#ffffff',    // tarjetas
+          secondary: '#f3f4f6',  // inputs, insets, hovers (gray-100)
+          tertiary: '#f4f6f5',   // fondo base de la app
+          border: '#e5e7eb',     // borde/hairline (gray-200)
+        },
+        // Superficies oscuras para la barra lateral (elemento "negro" de la marca).
+        sidebar: {
+          DEFAULT: '#0f1315',
+          hover: '#1a2024',
+          border: '#20272c',
         },
       },
       fontFamily: {

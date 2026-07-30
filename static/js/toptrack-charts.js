@@ -9,10 +9,11 @@
  * Los datos se leen de un <script type="application/json" id="dataId">.
  */
 (function () {
-  const PALETTE = ['#22c55e', '#f59e0b', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6', '#eab308'];
-  const GRID = 'rgba(255,255,255,0.07)';
-  const AXIS = 'rgba(255,255,255,0.15)';
-  const TICK = '#9ca3af';
+  const PALETTE = ['#16a34a', '#f59e0b', '#2563eb', '#a855f7', '#ec4899', '#0d9488', '#eab308'];
+  const GRID = 'rgba(17,24,39,0.07)';
+  const AXIS = 'rgba(17,24,39,0.18)';
+  const TICK = '#6b7280';
+  const LEGEND = '#374151';
   const FONT = '12px Inter, system-ui, sans-serif';
 
   function readData(id) {
@@ -109,7 +110,7 @@
       const tw = ctx.measureText(label).width;
       ctx.fillStyle = s.color;
       ctx.beginPath(); ctx.arc(lx + 4, ly, 4, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#d1d5db';
+      ctx.fillStyle = LEGEND;
       ctx.fillText(label, lx + 12, ly);
       lx += 12 + tw + 18;
     });
