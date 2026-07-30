@@ -12,8 +12,16 @@ cd "$PROJECT_DIR"
 source venv/bin/activate
 mkdir -p "$BACKUP_DIR"
 
-if [ -n "$(git status --porcelain)" ]; then
-    echo "ERROR: el árbol de trabajo del servidor tiene cambios sin guardar."
+# El propio deploy regenera static/css/app.css con Tailwind; si un deploy anterior
+# lo dejó modificado respecto al repo, lo descartamos para no bloquear el pull.
+git checkout -- static/css/app.css 2>/dev/null || true
+
+# Solo deben bloquear los cambios en ficheros YA versionados. Los archivos sin
+# rastrear (p. ej. package-lock.json que genera npm) no son motivo para abortar.
+if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+    echo "ERROR: el árbol de trabajo del servidor tiene cambios sin guardar en ficheros versionados:"
+    git status --short
+    echo "Revísalos y descártalos (git checkout -- <fichero>) antes de desplegar."
     exit 1
 fi
 

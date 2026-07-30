@@ -61,6 +61,7 @@ htmlcov/
 # Node / Tailwind build (el CSS compilado SÍ se versiona: static/css/app.css)
 node_modules/
 npm-debug.log*
+package-lock.json
 
 # Estado local de despliegues y backups
 .deploy/
