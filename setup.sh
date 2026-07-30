@@ -139,8 +139,10 @@ DEBUG=False
 DJANGO_SECRET_KEY='${SECRET_KEY}'
 ALLOWED_HOSTS='${ALLOWED_HOSTS}'
 CSRF_TRUSTED_ORIGINS='${CSRF_ORIGINS}'
-SITE_NAME=TopTrack
-SITE_TAGLINE=FSC Top Nutrition
+# Entre comillas: setup.sh y deploy.sh vuelven a "source"ar este .env como bash,
+# y los valores con espacios (p. ej. la tagline) romperían ese source sin comillas.
+SITE_NAME='TopTrack'
+SITE_TAGLINE='FSC Top Nutrition'
 SUPPORT_EMAIL=info@fsctopnutrition.com
 
 # Seguridad HTTPS: solo se fuerza si hay dominio (con IP no hay certificado).
