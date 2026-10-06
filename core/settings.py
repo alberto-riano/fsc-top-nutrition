@@ -61,6 +61,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    # Terceros
+    'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     # Apps propias
     'accounts',
     'clients',
@@ -68,6 +71,7 @@ INSTALLED_APPS = [
     'metrics',
     'plans',
     'dashboard',
+    'api',
 ]
 
 # Custom User Model
@@ -168,6 +172,36 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Tamaño máximo de subida (planes PDF)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # 20 MB
+
+# API REST (app móvil nativa). La web sigue usando sesión/cookie; la API usa
+# JWT porque la consume un cliente nativo (iOS/Android), no un navegador.
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.ScopedRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'auth': '10/min',
+    },
+}
+
+from datetime import timedelta  # noqa: E402
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+}
+
+# Expo Push API (notificaciones nativas para la app móvil). Vacío = deshabilitadas.
+EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send'
 
 # Branding del producto (centralizado para reutilizar el repo en otros verticales)
 SITE_NAME = os.environ.get('SITE_NAME', 'TopTrack')

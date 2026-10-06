@@ -11,6 +11,7 @@ from .health import healthz
 urlpatterns = [
     path('healthz/', healthz, name='healthz'),
     path('admin/', admin.site.urls),
+    path('api/v1/', include('api.urls')),
     path('', include('dashboard.urls')),
     path('accounts/', include('accounts.urls')),
     path('clientes/', include('clients.urls')),

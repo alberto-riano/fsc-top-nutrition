@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User
+from .models import DeviceToken, User
 
 
 @admin.register(User)
@@ -23,3 +23,11 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('username', 'email', 'role', 'password1', 'password2'),
         }),
     )
+
+
+@admin.register(DeviceToken)
+class DeviceTokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'platform', 'created_at', 'updated_at')
+    list_filter = ('platform',)
+    search_fields = ('user__email', 'token')
+    readonly_fields = ('created_at', 'updated_at')

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
@@ -54,3 +55,38 @@ class User(AbstractUser):
     @property
     def display_name(self):
         return self.get_full_name() or self.email
+
+
+class DeviceToken(models.Model):
+    """
+    Push token (Expo) de un dispositivo donde el usuario tiene instalada la
+    app móvil nativa. Un usuario puede tener varios dispositivos; un mismo
+    token se reasigna si cambia de usuario (reinstalación, otra cuenta).
+    """
+
+    PLATFORM_IOS = 'ios'
+    PLATFORM_ANDROID = 'android'
+    PLATFORM_CHOICES = [
+        (PLATFORM_IOS, 'iOS'),
+        (PLATFORM_ANDROID, 'Android'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='device_tokens',
+        verbose_name='Usuario',
+    )
+    token = models.CharField('Push token', max_length=255, unique=True)
+    platform = models.CharField('Plataforma', max_length=20, choices=PLATFORM_CHOICES)
+
+    created_at = models.DateTimeField('Creado', auto_now_add=True)
+    updated_at = models.DateTimeField('Actualizado', auto_now=True)
+
+    class Meta:
+        verbose_name = 'Dispositivo (push)'
+        verbose_name_plural = 'Dispositivos (push)'
+
+    def __str__(self):
+        return f"{self.user} · {self.platform}"
