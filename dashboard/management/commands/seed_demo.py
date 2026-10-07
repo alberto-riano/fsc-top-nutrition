@@ -11,10 +11,13 @@ Uso:  python manage.py seed_demo
 import random
 from datetime import date, timedelta
 from decimal import Decimal
+from io import BytesIO
 
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from PIL import Image, ImageDraw, ImageFont
 
 from bonos.models import Bono, Session
 from clients.models import ClientProfile
@@ -25,12 +28,36 @@ from plans.models import Plan
 User = get_user_model()
 
 
+def _sample_pdf_bytes(title, lines):
+    """PDF de una página con Pillow (sin dependencias extra tipo reportlab)."""
+    width, height = 1000, 1400
+    img = Image.new('RGB', (width, height), 'white')
+    draw = ImageDraw.Draw(img)
+    try:
+        font_title = ImageFont.load_default(size=40)
+        font_body = ImageFont.load_default(size=26)
+    except TypeError:
+        # Pillow < 9.2 no soporta el argumento size.
+        font_title = font_body = ImageFont.load_default()
+
+    draw.text((60, 60), title, fill='black', font=font_title)
+    y = 140
+    for line in lines:
+        draw.text((60, y), line, fill='black', font=font_body)
+        y += 40
+
+    buffer = BytesIO()
+    img.save(buffer, format='PDF')
+    return buffer.getvalue()
+
+
 class Command(BaseCommand):
     help = "Crea datos de demostración (admin + 3 clientes con historial)."
 
     def handle(self, *args, **opts):
         random.seed(42)
         admin = self._trainer()
+        self._quick_login_trainer()
         self._ensure_catalog()
 
         self._completo()
@@ -39,7 +66,8 @@ class Command(BaseCommand):
         self._alberto_azul()
 
         self.stdout.write(self.style.SUCCESS(
-            'Demo creada. Entrena con: admin@toptrack.local (o el que definiste). '
+            'Demo creada. Entrena con: admin@toptrack.local / admin (o el que definiste), '
+            'o con admin / admin para pruebas rápidas. '
             'Clientes de ejemplo: ana@demo.com, luis@demo.com, marco@demo.com, '
             'alberto@demo.com (contraseña: demo1234).'))
 
@@ -49,6 +77,17 @@ class Command(BaseCommand):
             email='admin@toptrack.local',
             defaults={'username': 'admin@toptrack.local', 'role': 'admin',
                       'first_name': 'Entrenador', 'is_staff': True, 'is_superuser': True})
+        if created:
+            admin.set_password('admin')
+            admin.save()
+        return admin
+
+    def _quick_login_trainer(self):
+        """Cuenta de entrenador con credenciales cortas (solo para pruebas)."""
+        admin, created = User.objects.get_or_create(
+            email='admin',
+            defaults={'username': 'admin-quick', 'role': 'admin',
+                      'first_name': 'Admin', 'is_staff': True, 'is_superuser': True})
         if created:
             admin.set_password('admin')
             admin.save()
@@ -133,9 +172,32 @@ class Command(BaseCommand):
             Plan.objects.create(client=c, plan_type='rutina', title='Rutina full-body 3 días',
                                 content='Día A: sentadilla, press banca, remo.\nDía B: peso muerto, press hombro, dominadas.\nDía C: circuito metabólico.',
                                 date=date.today() - timedelta(days=20))
-            Plan.objects.create(client=c, plan_type='alimentacion', title='Plan hipocalórico 1600 kcal',
-                                content='Desayuno: avena + fruta.\nComida: proteína + verdura + arroz.\nCena: pescado + ensalada.',
-                                date=date.today() - timedelta(days=20))
+            nutrition = Plan.objects.create(
+                client=c, plan_type='alimentacion', title='Plan hipocalórico 1600 kcal',
+                content='Desayuno: avena + fruta.\nComida: proteína + verdura + arroz.\nCena: pescado + ensalada.',
+                date=date.today() - timedelta(days=20))
+            pdf_bytes = _sample_pdf_bytes('Plan de alimentación · Ana García', [
+                'Objetivo: 1600 kcal/día · déficit moderado',
+                '',
+                'Desayuno (350 kcal)',
+                '  Avena con leche + fruta + puñado de frutos secos',
+                '',
+                'Media mañana (150 kcal)',
+                '  Yogur natural + fruta',
+                '',
+                'Comida (500 kcal)',
+                '  Pechuga de pollo o pescado + verdura + arroz/patata',
+                '',
+                'Merienda (150 kcal)',
+                '  Tostada integral + aguacate',
+                '',
+                'Cena (450 kcal)',
+                '  Pescado o huevo + ensalada variada',
+                '',
+                'Hidratación: 2 L de agua al día.',
+                'Suplementación: no necesaria salvo indicación del entrenador.',
+            ])
+            nutrition.pdf.save('plan-alimentacion-ana.pdf', ContentFile(pdf_bytes), save=True)
 
     def _basico(self):
         c = self._client('luis@demo.com', 'Luis', 'Martín', '600333444', 'basico',
