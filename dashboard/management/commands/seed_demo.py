@@ -169,9 +169,35 @@ class Command(BaseCommand):
                     v += random.randint(5, 15)
         # Planes
         if not c.plans.exists():
-            Plan.objects.create(client=c, plan_type='rutina', title='Rutina full-body 3 días',
-                                content='Día A: sentadilla, press banca, remo.\nDía B: peso muerto, press hombro, dominadas.\nDía C: circuito metabólico.',
-                                date=date.today() - timedelta(days=20))
+            routine = Plan.objects.create(
+                client=c, plan_type='rutina', title='Rutina full-body 3 días',
+                content='Día A: sentadilla, press banca, remo.\nDía B: peso muerto, press hombro, dominadas.\nDía C: circuito metabólico.',
+                date=date.today() - timedelta(days=20))
+            routine_pdf = _sample_pdf_bytes('Rutina full-body · Ana García', [
+                'Frecuencia: 3 días/semana, no consecutivos',
+                '',
+                'DÍA A',
+                '  Sentadilla          4x10',
+                '  Press banca         4x10',
+                '  Remo con barra      4x10',
+                '  Plancha             3x40s',
+                '',
+                'DÍA B',
+                '  Peso muerto         4x8',
+                '  Press hombro        4x10',
+                '  Dominadas asistidas 4x8',
+                '  Rueda abdominal     3x10',
+                '',
+                'DÍA C (circuito metabólico x4 vueltas)',
+                '  Burpees             12',
+                '  Zancadas            16',
+                '  Remo mancuerna      12 c/lado',
+                '  Mountain climbers   30s',
+                '',
+                'Descanso entre series: 60-90s. Calentamiento 5-10 min antes de cada día.',
+            ])
+            routine.pdf.save('rutina-fullbody-ana.pdf', ContentFile(routine_pdf), save=True)
+
             nutrition = Plan.objects.create(
                 client=c, plan_type='alimentacion', title='Plan hipocalórico 1600 kcal',
                 content='Desayuno: avena + fruta.\nComida: proteína + verdura + arroz.\nCena: pescado + ensalada.',
@@ -274,9 +300,35 @@ class Command(BaseCommand):
                         value=Decimal(str(v)))
                     v += random.randint(1, 3)
         if not c.plans.exists():
-            Plan.objects.create(client=c, plan_type='rutina', title='Rutina de hipertrofia (push/pull/legs)',
-                                content='Push: press banca, press militar, fondos.\nPull: dominadas, remo, curl.\nLegs: sentadilla, peso muerto, zancadas.',
-                                date=date.today() - timedelta(days=10))
+            routine = Plan.objects.create(
+                client=c, plan_type='rutina', title='Rutina de hipertrofia (push/pull/legs)',
+                content='Push: press banca, press militar, fondos.\nPull: dominadas, remo, curl.\nLegs: sentadilla, peso muerto, zancadas.',
+                date=date.today() - timedelta(days=10))
+            routine_pdf = _sample_pdf_bytes('Rutina push/pull/legs · Alberto Azul', [
+                'Frecuencia: 6 días/semana (PPL x2)',
+                '',
+                'PUSH (pecho/hombro/tríceps)',
+                '  Press banca          4x8',
+                '  Press militar         4x8',
+                '  Elevaciones laterales 3x12',
+                '  Fondos en paralelas   3x10',
+                '',
+                'PULL (espalda/bíceps)',
+                '  Dominadas lastradas   4x6',
+                '  Remo con barra        4x8',
+                '  Curl de bíceps        3x12',
+                '  Face pull             3x15',
+                '',
+                'LEGS (pierna completa)',
+                '  Sentadilla            4x6',
+                '  Peso muerto rumano    4x8',
+                '  Zancadas con peso     3x12 c/pierna',
+                '  Gemelo en máquina     4x15',
+                '',
+                'Descanso: 90-120s en básicos, 60s en accesorios.',
+            ])
+            routine.pdf.save('rutina-ppl-alberto.pdf', ContentFile(routine_pdf), save=True)
+
             Plan.objects.create(client=c, plan_type='alimentacion', title='Plan de volumen 2600 kcal',
                                 content='Superávit calórico moderado.\n2 g proteína/kg.\n5 comidas al día.',
                                 date=date.today() - timedelta(days=10))
