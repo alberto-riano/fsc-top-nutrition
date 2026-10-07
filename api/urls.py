@@ -19,4 +19,14 @@ urlpatterns = [
     path('plans/', views.PlanListView.as_view(), name='plans'),
 
     path('devices/register/', views.DeviceTokenRegisterView.as_view(), name='device-register'),
+
+    # Entrenador
+    path('trainer/clients/', views.TrainerClientListView.as_view(), name='trainer-clients'),
+    path('trainer/clients/<uuid:client_pk>/', views.TrainerClientDetailView.as_view(), name='trainer-client-detail'),
+    path('trainer/clients/<uuid:client_pk>/bonos/', views.TrainerBonoListView.as_view(), name='trainer-bonos'),
+    path('trainer/clients/<uuid:client_pk>/sessions/mark/', views.TrainerMarkSessionView.as_view(), name='trainer-mark-session'),
+    path('trainer/clients/<uuid:client_pk>/metrics/body/', views.TrainerBodyMeasurementListView.as_view(), name='trainer-body-measurements'),
+    path('trainer/clients/<uuid:client_pk>/metrics/strength/', views.TrainerStrengthPRListView.as_view(), name='trainer-strength-prs'),
+    path('trainer/clients/<uuid:client_pk>/metrics/endurance/', views.TrainerEnduranceTestListView.as_view(), name='trainer-endurance-tests'),
+    path('trainer/clients/<uuid:client_pk>/plans/', views.TrainerPlanListCreateView.as_view(), name='trainer-plans'),
 ]

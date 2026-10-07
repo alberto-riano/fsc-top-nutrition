@@ -1,4 +1,8 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import BasePermission
+
+from clients.models import ClientProfile
 
 
 class ClientProfileMixin:
@@ -13,3 +17,17 @@ class ClientProfileMixin:
         if profile is None:
             raise PermissionDenied('Esta cuenta no tiene perfil de cliente.')
         return profile
+
+
+class IsTrainer(BasePermission):
+    """Solo el entrenador (o superusuario) puede usar los endpoints de gestión."""
+
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.user.is_trainer)
+
+
+class TrainerClientMixin:
+    """Resuelve el `ClientProfile` indicado en la URL para los endpoints de entrenador."""
+
+    def get_client(self):
+        return get_object_or_404(ClientProfile, pk=self.kwargs['client_pk'])

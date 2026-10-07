@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from accounts.models import DeviceToken, User
@@ -121,3 +122,69 @@ class DeviceTokenSerializer(serializers.ModelSerializer):
             defaults={'user': user, 'platform': validated_data['platform']},
         )
         return device
+
+
+# -- Entrenador ---------------------------------------------------------------
+
+class ClientListItemSerializer(serializers.ModelSerializer):
+    full_name = serializers.ReadOnlyField()
+    initials = serializers.ReadOnlyField()
+    sessions_left = serializers.ReadOnlyField()
+    low_sessions_alert = serializers.ReadOnlyField()
+
+    class Meta:
+        model = ClientProfile
+        fields = (
+            'id', 'full_name', 'initials', 'profile_type', 'active',
+            'sessions_left', 'low_sessions_alert',
+        )
+
+
+class MarkSessionSerializer(serializers.Serializer):
+    notes = serializers.CharField(required=False, allow_blank=True, default='')
+
+    def save(self, **kwargs):
+        client = self.context['client']
+        bono = client.active_bono
+        if bono is None:
+            raise serializers.ValidationError('No hay ningún bono activo con sesiones disponibles.')
+        return Session.objects.create(
+            bono=bono,
+            date=timezone.now(),
+            session_type=bono.bono_type,
+            notes=self.validated_data.get('notes', ''),
+        )
+
+
+class TrainerPlanSerializer(serializers.ModelSerializer):
+    archive_previous = serializers.BooleanField(write_only=True, required=False, default=True)
+    pdf_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Plan
+        fields = (
+            'id', 'plan_type', 'title', 'content', 'pdf', 'pdf_url', 'date',
+            'archived', 'archive_previous',
+        )
+        extra_kwargs = {'pdf': {'write_only': True, 'required': False}}
+
+    def validate(self, attrs):
+        content = attrs.get('content', getattr(self.instance, 'content', ''))
+        pdf = attrs.get('pdf', getattr(self.instance, 'pdf', None))
+        if not content and not pdf:
+            raise serializers.ValidationError('Añade contenido de texto o un PDF (al menos uno).')
+        return attrs
+
+    def get_pdf_url(self, obj):
+        if not obj.pdf:
+            return None
+        request = self.context.get('request')
+        url = obj.pdf.url
+        return request.build_absolute_uri(url) if request else url
+
+    def create(self, validated_data):
+        archive_previous = validated_data.pop('archive_previous', True)
+        client = self.context['client']
+        if archive_previous:
+            client.plans.filter(plan_type=validated_data['plan_type'], archived=False).update(archived=True)
+        return Plan.objects.create(client=client, **validated_data)
