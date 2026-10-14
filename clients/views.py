@@ -2,13 +2,15 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from accounts.decorators import trainer_required
+from bonos.services import sessions_calendar_data
 from metrics import charts
 from metrics.models import Exercise, EnduranceTestType
-from .forms import ClientForm
-from .models import ClientProfile
-from .services import create_client_user, invitation_url
+from .forms import ClientForm, PlayerQuestionnaireForm
+from .models import ClientProfile, PlayerQuestionnaire
+from .services import create_client_user, invitation_url, whatsapp_invite_url
 
 
 @trainer_required
@@ -54,7 +56,7 @@ def client_create(request):
         if form.is_valid():
             with transaction.atomic():
                 user = create_client_user(
-                    email=form.cleaned_data['email'],
+                    email=form.cleaned_data['username'],
                     first_name=form.cleaned_data['first_name'],
                     last_name=form.cleaned_data['last_name'],
                     phone=form.cleaned_data['phone'],
@@ -84,7 +86,7 @@ def client_edit(request, pk):
                 user = profile.user
                 user.first_name = form.cleaned_data['first_name']
                 user.last_name = form.cleaned_data['last_name']
-                user.email = form.cleaned_data['email']
+                user.email = form.cleaned_data['username']
                 user.phone = form.cleaned_data['phone']
                 new_password = form.cleaned_data.get('initial_password')
                 if new_password:
@@ -103,7 +105,28 @@ def client_edit(request, pk):
 def client_invite_link(request, pk):
     profile = get_object_or_404(ClientProfile.objects.select_related('user'), pk=pk)
     url = invitation_url(request, profile.user)
-    return render(request, 'clients/invite_link.html', {'client': profile, 'invite_url': url})
+    context = {
+        'client': profile,
+        'invite_url': url,
+        'whatsapp_url': whatsapp_invite_url(profile.user, url),
+    }
+    return render(request, 'clients/invite_link.html', context)
+
+
+@trainer_required
+def questionnaire_edit(request, pk):
+    """Cuestionario inicial de futbolistas: se crea la primera vez que se edita."""
+    client = get_object_or_404(ClientProfile, pk=pk)
+    questionnaire, _ = PlayerQuestionnaire.objects.get_or_create(client=client)
+    if request.method == 'POST':
+        form = PlayerQuestionnaireForm(request.POST, instance=questionnaire)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cuestionario guardado.')
+            return redirect(f"{reverse('clients:detail', kwargs={'pk': client.pk})}?tab=cuestionario")
+    else:
+        form = PlayerQuestionnaireForm(instance=questionnaire)
+    return render(request, 'clients/questionnaire_form.html', {'form': form, 'client': client})
 
 
 @trainer_required
@@ -125,12 +148,14 @@ def client_detail(request, pk):
         'bonos': bonos,
         'active_bono': active_bono,
         'sessions': recent_sessions[:30],
+        'sessions_calendar': sessions_calendar_data(recent_sessions),
         'session_count': len(recent_sessions),
         # Métricas
         'body_measurements': list(profile.body_measurements.all()[:20]),
         'strength_prs': list(profile.strength_prs.select_related('exercise').all()[:30]),
         'endurance_tests': list(profile.endurance_tests.select_related('test_type').all()[:30]),
         'plans': list(profile.plans.all()),
+        'questionnaire': getattr(profile, 'questionnaire', None),
         # Catálogos para los formularios rápidos
         'exercises': list(Exercise.objects.all()),
         'test_types': list(EnduranceTestType.objects.all()),

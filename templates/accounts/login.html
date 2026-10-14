@@ -14,16 +14,16 @@
         <div class="card p-6 sm:p-8">
             {% if form.errors %}
             <div class="rounded-xl bg-red-500/10 border border-red-500/30 p-4 mb-6">
-                <p class="text-sm text-red-700">Email o contraseña incorrectos.</p>
+                <p class="text-sm text-red-700">Usuario o contraseña incorrectos.</p>
             </div>
             {% endif %}
 
             <form class="space-y-5" method="post">
                 {% csrf_token %}
                 <div>
-                    <label for="username" class="label">Email</label>
-                    <input id="username" name="username" type="email" autocomplete="email" required
-                           class="input" placeholder="tu@email.com">
+                    <label for="username" class="label">Usuario</label>
+                    <input id="username" name="username" type="text" autocomplete="username" required
+                           class="input" placeholder="tu usuario">
                 </div>
                 <div>
                     <div class="flex items-center justify-between mb-1.5">

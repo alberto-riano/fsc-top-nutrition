@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Cuestionario · {{ client.full_name }} · {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Cuestionario inicial{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-700">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Datos personales</h2>
+            <p class="text-xs text-gray-500 -mt-2">Nombre, fecha de nacimiento, posición y tutor ya se guardan en la ficha del cliente.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% include 'clients/_field.html' with field=form.team %}
+                {% include 'clients/_field.html' with field=form.category %}
+                {% include 'clients/_field.html' with field=form.dominant_foot %}
+                {% include 'clients/_field.html' with field=form.height_cm %}
+                {% include 'clients/_field.html' with field=form.weight_kg %}
+                {% include 'clients/_field.html' with field=form.guardian_email %}
+            </div>
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Fútbol</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {% include 'clients/_field.html' with field=form.years_playing %}
+                {% include 'clients/_field.html' with field=form.weekly_trainings %}
+                {% include 'clients/_field.html' with field=form.weekly_matches %}
+            </div>
+            {% include 'clients/_field.html' with field=form.other_sports %}
+            {% include 'clients/_field.html' with field=form.strengths %}
+            {% include 'clients/_field.html' with field=form.areas_to_improve %}
+            {% include 'clients/_field.html' with field=form.season_goals %}
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Hábitos diarios</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {% include 'clients/_field.html' with field=form.wake_time %}
+                {% include 'clients/_field.html' with field=form.sleep_time %}
+                {% include 'clients/_field.html' with field=form.sleep_hours %}
+            </div>
+            {% include 'clients/_field.html' with field=form.daily_routine %}
+            {% include 'clients/_field.html' with field=form.screen_time %}
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Entrenamiento</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="flex items-center gap-2.5 text-sm font-medium text-gray-600">{{ form.gym_experience }} {{ form.gym_experience.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm font-medium text-gray-600">{{ form.trainer_experience }} {{ form.trainer_experience.label }}</label>
+            </div>
+            {% include 'clients/_field.html' with field=form.trainer_experience_detail %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% include 'clients/_field.html' with field=form.weekly_availability_days %}
+                {% include 'clients/_field.html' with field=form.session_duration_minutes %}
+            </div>
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Valoración física (1-5)</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {% include 'clients/_field.html' with field=form.rating_endurance %}
+                {% include 'clients/_field.html' with field=form.rating_strength %}
+                {% include 'clients/_field.html' with field=form.rating_speed %}
+                {% include 'clients/_field.html' with field=form.rating_jump_power %}
+                {% include 'clients/_field.html' with field=form.rating_agility %}
+                {% include 'clients/_field.html' with field=form.rating_change_of_direction %}
+                {% include 'clients/_field.html' with field=form.rating_balance %}
+                {% include 'clients/_field.html' with field=form.rating_flexibility %}
+            </div>
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Salud y lesiones</h2>
+            <label class="flex items-center gap-2.5 text-sm font-medium text-gray-600">{{ form.had_major_injury }} {{ form.had_major_injury.label }}</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.injury_ankle_sprain }} {{ form.injury_ankle_sprain.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.injury_knee }} {{ form.injury_knee.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.injury_muscle_tear }} {{ form.injury_muscle_tear.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.injury_hamstring }} {{ form.injury_hamstring.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.injury_pubalgia }} {{ form.injury_pubalgia.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.injury_lower_back }} {{ form.injury_lower_back.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.injury_fracture }} {{ form.injury_fracture.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.injury_other }} {{ form.injury_other.label }}</label>
+            </div>
+            {% include 'clients/_field.html' with field=form.injury_other_detail %}
+            {% include 'clients/_field.html' with field=form.current_pain %}
+            {% include 'clients/_field.html' with field=form.painful_movements %}
+            {% include 'clients/_field.html' with field=form.physio_treatment %}
+            {% include 'clients/_field.html' with field=form.medication %}
+            {% include 'clients/_field.html' with field=form.medical_conditions %}
+            <label class="flex items-center gap-2.5 text-sm font-medium text-gray-600">{{ form.doctor_restricted_exercise }} {{ form.doctor_restricted_exercise.label }}</label>
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Alimentación</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% include 'clients/_field.html' with field=form.meals_per_day %}
+                {% include 'clients/_field.html' with field=form.water_intake %}
+            </div>
+            {% include 'clients/_field.html' with field=form.breakfast %}
+            {% include 'clients/_field.html' with field=form.pre_training_meal %}
+            {% include 'clients/_field.html' with field=form.post_training_dinner %}
+            {% include 'clients/_field.html' with field=form.liked_foods %}
+            {% include 'clients/_field.html' with field=form.disliked_foods %}
+            {% include 'clients/_field.html' with field=form.junk_food_frequency %}
+            {% include 'clients/_field.html' with field=form.supplements %}
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Objetivos</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.goal_faster }} {{ form.goal_faster.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.goal_more_strength }} {{ form.goal_more_strength.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.goal_jump_higher }} {{ form.goal_jump_higher.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.goal_better_acceleration }} {{ form.goal_better_acceleration.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.goal_change_direction }} {{ form.goal_change_direction.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.goal_less_fatigue }} {{ form.goal_less_fatigue.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.goal_prevent_injuries }} {{ form.goal_prevent_injuries.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.goal_injury_recovery }} {{ form.goal_injury_recovery.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.goal_season_fitness }} {{ form.goal_season_fitness.label }}</label>
+                <label class="flex items-center gap-2.5 text-sm text-gray-600">{{ form.goal_trials_prep }} {{ form.goal_trials_prep.label }}</label>
+            </div>
+            {% include 'clients/_field.html' with field=form.goal_other %}
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Disponibilidad</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% include 'clients/_field.html' with field=form.available_days %}
+                {% include 'clients/_field.html' with field=form.available_schedule %}
+            </div>
+            {% include 'clients/_field.html' with field=form.important_dates %}
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h2 class="section-title">Información para los padres</h2>
+            <p class="text-xs text-gray-500 -mt-2">Privado del entrenador, igual que las notas internas.</p>
+            {% include 'clients/_field.html' with field=form.parent_notes %}
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <a href="{% url 'clients:detail' client.pk %}?tab=cuestionario" class="btn-ghost">Cancelar</a>
+            <button type="submit" class="btn-primary">Guardar cuestionario</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

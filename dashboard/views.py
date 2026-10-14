@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from accounts.decorators import client_required
+from bonos.services import sessions_calendar_data
 from clients.models import ClientProfile
 from metrics import charts
 
@@ -91,6 +92,7 @@ def my_bonos(request):
         'active_bono': profile.active_bono,
         'bonos': bonos,
         'sessions': sessions,
+        'sessions_calendar': sessions_calendar_data(sessions),
     }
     return render(request, 'dashboard/my_bonos.html', context)
 

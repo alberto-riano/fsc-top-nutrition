@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.validators import UnicodeUsernameValidator
 
-from .models import ClientProfile
+from .models import ClientProfile, PlayerQuestionnaire
 
 User = get_user_model()
 
@@ -23,7 +24,9 @@ class ClientForm(forms.ModelForm):
 
     first_name = forms.CharField(label='Nombre', max_length=150)
     last_name = forms.CharField(label='Apellidos', max_length=150, required=False)
-    email = forms.EmailField(label='Email (acceso)')
+    username = forms.CharField(
+        label='Usuario (acceso)', max_length=150, validators=[UnicodeUsernameValidator()],
+        help_text='Para entrar en la web. Sin espacios (letras, números, @/./+/-/_).')
     phone = forms.CharField(label='Teléfono', max_length=20, required=False)
     initial_password = forms.CharField(
         label='Contraseña inicial', required=False, widget=forms.PasswordInput,
@@ -53,7 +56,7 @@ class ClientForm(forms.ModelForm):
             u = self.instance.user
             self.fields['first_name'].initial = u.first_name
             self.fields['last_name'].initial = u.last_name
-            self.fields['email'].initial = u.email
+            self.fields['username'].initial = u.email
             self.fields['phone'].initial = u.phone
             # En edición no forzamos cambiar la contraseña.
             self.fields['initial_password'].label = 'Restablecer contraseña'
@@ -64,14 +67,14 @@ class ClientForm(forms.ModelForm):
                 css = field.widget.attrs.get('class', '')
                 field.widget.attrs['class'] = (css + ' ' + INPUT).strip()
 
-    def clean_email(self):
-        email = self.cleaned_data['email'].strip().lower()
-        qs = User.objects.filter(email__iexact=email)
+    def clean_username(self):
+        username = self.cleaned_data['username'].strip().lower()
+        qs = User.objects.filter(email__iexact=username)
         if getattr(self, '_editing', False):
             qs = qs.exclude(pk=self.instance.user_id)
         if qs.exists():
-            raise forms.ValidationError('Ya existe una cuenta con este email.')
-        return email
+            raise forms.ValidationError('Ya existe una cuenta con este usuario.')
+        return username
 
     def clean_initial_password(self):
         pwd = self.cleaned_data.get('initial_password', '')
@@ -87,3 +90,26 @@ class ClientForm(forms.ModelForm):
             if not cleaned.get('guardian_name'):
                 self.add_error('guardian_name', 'Indica el nombre del tutor (es menor).')
         return cleaned
+
+
+class PlayerQuestionnaireForm(forms.ModelForm):
+    """Cuestionario inicial de futbolistas (niños y adolescentes)."""
+
+    class Meta:
+        model = PlayerQuestionnaire
+        exclude = ['id', 'client', 'created_at', 'updated_at']
+        widgets = {
+            'wake_time': forms.TimeInput(attrs={'type': 'time'}),
+            'sleep_time': forms.TimeInput(attrs={'type': 'time'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs['class'] = CHECKBOX
+            else:
+                if isinstance(field.widget, forms.Textarea):
+                    field.widget.attrs.setdefault('rows', 2)
+                css = field.widget.attrs.get('class', '')
+                field.widget.attrs['class'] = (css + ' ' + INPUT).strip()

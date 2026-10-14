@@ -10,4 +10,5 @@ urlpatterns = [
     path('<uuid:pk>/', views.client_detail, name='detail'),
     path('<uuid:pk>/editar/', views.client_edit, name='edit'),
     path('<uuid:pk>/invitacion/', views.client_invite_link, name='invite_link'),
+    path('<uuid:pk>/cuestionario/', views.questionnaire_edit, name='questionnaire'),
 ]

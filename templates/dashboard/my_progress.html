@@ -8,7 +8,14 @@
 
     {% if client.shows_body_composition %}
     <div class="card p-5" data-chart-wrap>
-        <h3 class="section-title mb-4">Composición corporal</h3>
+        <h3 class="section-title mb-4">Composición corporal
+            {% if body_chart.weight_trend %}
+            <span class="ml-2 inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-surface-secondary text-gray-600">
+                {% if body_chart.weight_trend.delta > 0 %}▲{% elif body_chart.weight_trend.delta < 0 %}▼{% else %}—{% endif %}
+                {{ body_chart.weight_trend.delta }} kg
+            </span>
+            {% endif %}
+        </h3>
         {% if body_measurements %}
         <div class="relative h-64"><canvas id="chart-body"></canvas></div>
         <div class="mt-4 grid grid-cols-3 gap-3 text-center">
@@ -29,9 +36,12 @@
         <div class="relative h-64"><canvas id="chart-strength"></canvas></div>
         <div class="mt-4 flex flex-wrap gap-2">
             {% for s in strength_chart %}
-            <div class="rounded-xl bg-surface-secondary px-3 py-2">
-                <p class="text-xs text-gray-500">{{ s.name }}</p>
-                <p class="text-sm font-bold text-brand-600">Récord: {{ s.best }} kg</p>
+            <div class="rounded-xl bg-surface-secondary px-3 py-2 flex items-center gap-2">
+                <div>
+                    <p class="text-xs text-gray-500">{{ s.name }}</p>
+                    <p class="text-sm font-bold text-brand-600">Récord: {{ s.best }} kg</p>
+                </div>
+                {% include 'components/trend_badge.html' with trend=s.trend improved=s.improved unit=' kg' %}
             </div>
             {% endfor %}
         </div>
@@ -46,9 +56,12 @@
         <div class="relative h-64"><canvas id="chart-endurance"></canvas></div>
         <div class="mt-4 flex flex-wrap gap-2">
             {% for t in endurance_chart %}
-            <div class="rounded-xl bg-surface-secondary px-3 py-2">
-                <p class="text-xs text-gray-500">{{ t.name }}</p>
-                <p class="text-sm font-bold text-brand-600">Mejor: {{ t.best }} {{ t.unit }}</p>
+            <div class="rounded-xl bg-surface-secondary px-3 py-2 flex items-center gap-2">
+                <div>
+                    <p class="text-xs text-gray-500">{{ t.name }}</p>
+                    <p class="text-sm font-bold text-brand-600">Mejor: {{ t.best }} {{ t.unit }}</p>
+                </div>
+                {% include 'components/trend_badge.html' with trend=t.trend improved=t.improved unit=' '|add:t.unit %}
             </div>
             {% endfor %}
         </div>

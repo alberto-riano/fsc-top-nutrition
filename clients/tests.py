@@ -55,6 +55,7 @@ class PermissionTests(TestCase):
             ('clients:create', []),
             ('bonos:create', [self.p2.pk]),
             ('metrics:body_create', [self.p2.pk]),
+            ('clients:questionnaire', [self.p2.pk]),
         ]:
             resp = self.client.get(reverse(name, args=args))
             self.assertEqual(resp.status_code, 403, f'{name} debería ser 403 para un cliente')
@@ -71,12 +72,25 @@ class PermissionTests(TestCase):
         resp = self.client.get(reverse('clients:detail', args=[self.p1.pk]))
         self.assertEqual(resp.status_code, 200)
 
+    def test_trainer_fills_questionnaire(self):
+        self.client.force_login(self.trainer)
+        resp = self.client.post(reverse('clients:questionnaire', args=[self.p1.pk]), {
+            'team': 'CD Ejemplo', 'category': 'Alevin', 'dominant_foot': 'derecho',
+            'goal_faster': 'on', 'goal_prevent_injuries': 'on',
+            'injury_ankle_sprain': 'on',
+        })
+        self.assertEqual(resp.status_code, 302)
+        q = self.p1.questionnaire
+        self.assertEqual(q.team, 'CD Ejemplo')
+        self.assertIn('Ser más rápido', q.objectives)
+        self.assertIn('Esguince de tobillo', q.injuries)
+
 
 class ClientCreateTests(TestCase):
     def test_trainer_creates_client_with_password(self):
         self.client.force_login(trainer())
         resp = self.client.post(reverse('clients:create'), {
-            'first_name': 'Nuevo', 'last_name': 'Cliente', 'email': 'nuevo@demo.com',
+            'first_name': 'Nuevo', 'last_name': 'Cliente', 'username': 'nuevo@demo.com',
             'phone': '600000000', 'initial_password': 'segura1234',
             'profile_type': 'completo', 'start_date': '2026-01-01', 'active': 'on',
             'goal': '', 'internal_notes': '',

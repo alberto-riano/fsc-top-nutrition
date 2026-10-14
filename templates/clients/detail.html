@@ -51,6 +51,7 @@
         {% include 'clients/_tab.html' with key='bonos' label='Sesiones y bonos' %}
         {% if client.shows_metrics %}{% include 'clients/_tab.html' with key='metricas' label='Métricas' %}{% endif %}
         {% if client.shows_plans %}{% include 'clients/_tab.html' with key='planes' label='Planes' %}{% endif %}
+        {% if client.is_football %}{% include 'clients/_tab.html' with key='cuestionario' label='Cuestionario' %}{% endif %}
         {% include 'clients/_tab.html' with key='notas' label='Notas' %}
     </div>
 
@@ -91,8 +92,7 @@
         <div class="flex items-center justify-between">
             <h3 class="section-title">Bonos</h3>
             <a href="{% url 'bonos:create' client.pk %}" class="btn-primary">+ Nuevo bono</a>
-        </div>
-        {% for b in bonos %}
+        </div>        {% for b in bonos %}
         <div class="card p-5">
             <div class="flex items-center justify-between gap-3">
                 <div>
@@ -136,6 +136,7 @@
             <h3 class="section-title">Historial de sesiones</h3>
             <a href="{% url 'bonos:session_create' client.pk %}" class="btn-secondary">+ Sesión</a>
         </div>
+        {% include 'components/session_calendar.html' with calendar_id='cal-client-detail' sessions_calendar=sessions_calendar %}
         <div class="card divide-y divide-surface-border">
             {% for s in sessions %}
             <div class="flex items-center justify-between p-4">
@@ -161,7 +162,14 @@
         {% if client.shows_body_composition %}
         <div class="card p-5" data-chart-wrap>
             <div class="flex items-center justify-between mb-4">
-                <h3 class="section-title">Composición corporal</h3>
+                <h3 class="section-title">Composición corporal
+                    {% if body_chart.weight_trend %}
+                    <span class="ml-2 inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-surface-secondary text-gray-600">
+                        {% if body_chart.weight_trend.delta > 0 %}▲{% elif body_chart.weight_trend.delta < 0 %}▼{% else %}—{% endif %}
+                        {{ body_chart.weight_trend.delta }} kg
+                    </span>
+                    {% endif %}
+                </h3>
                 <a href="{% url 'metrics:body_create' client.pk %}" class="btn-secondary">+ Medición</a>
             </div>
             <div class="relative h-64"><canvas id="chart-body"></canvas></div>
@@ -197,6 +205,19 @@
                 <a href="{% url 'metrics:pr_create' client.pk %}" class="btn-secondary">+ Récord</a>
             </div>
             <div class="relative h-64"><canvas id="chart-strength"></canvas></div>
+            {% if strength_chart %}
+            <div class="mt-4 flex flex-wrap gap-2">
+                {% for s in strength_chart %}
+                <div class="rounded-xl bg-surface-secondary px-3 py-2 flex items-center gap-2">
+                    <div>
+                        <p class="text-xs text-gray-500">{{ s.name }}</p>
+                        <p class="text-sm font-bold text-brand-600">Récord: {{ s.best }} kg</p>
+                    </div>
+                    {% include 'components/trend_badge.html' with trend=s.trend improved=s.improved unit=' kg' %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             <div class="mt-4 overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead><tr class="text-left text-gray-500 border-b border-surface-border">
@@ -229,6 +250,19 @@
                 <a href="{% url 'metrics:test_create' client.pk %}" class="btn-secondary">+ Test</a>
             </div>
             <div class="relative h-64"><canvas id="chart-endurance"></canvas></div>
+            {% if endurance_chart %}
+            <div class="mt-4 flex flex-wrap gap-2">
+                {% for t in endurance_chart %}
+                <div class="rounded-xl bg-surface-secondary px-3 py-2 flex items-center gap-2">
+                    <div>
+                        <p class="text-xs text-gray-500">{{ t.name }}</p>
+                        <p class="text-sm font-bold text-brand-600">Mejor: {{ t.best }} {{ t.unit }}</p>
+                    </div>
+                    {% include 'components/trend_badge.html' with trend=t.trend improved=t.improved unit=' '|add:t.unit %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             <div class="mt-4 overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead><tr class="text-left text-gray-500 border-b border-surface-border">
@@ -295,6 +329,77 @@
     </div>
     {% endif %}
 
+    <!-- CUESTIONARIO -->
+    {% if client.is_football %}
+    <div x-show="tab === 'cuestionario'" class="space-y-5" x-cloak>
+        <div class="flex items-center justify-between">
+            <h3 class="section-title">Cuestionario inicial</h3>
+            <a href="{% url 'clients:questionnaire' client.pk %}" class="btn-primary">
+                {% if questionnaire %}Editar cuestionario{% else %}Rellenar cuestionario{% endif %}
+            </a>
+        </div>
+        {% if questionnaire %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div class="card p-5">
+                <h4 class="section-title mb-3">Ficha de futbolista</h4>
+                <dl class="grid grid-cols-2 gap-3 text-sm">
+                    <div><dt class="text-gray-500">Equipo</dt><dd class="text-gray-800">{{ questionnaire.team|default:"—" }}</dd></div>
+                    <div><dt class="text-gray-500">Categoría</dt><dd class="text-gray-800">{{ questionnaire.category|default:"—" }}</dd></div>
+                    <div><dt class="text-gray-500">Pie dominante</dt><dd class="text-gray-800">{{ questionnaire.get_dominant_foot_display|default:"—" }}</dd></div>
+                    <div><dt class="text-gray-500">Altura / Peso</dt><dd class="text-gray-800">{{ questionnaire.height_cm|default:"—" }} cm · {{ questionnaire.weight_kg|default:"—" }} kg</dd></div>
+                    <div><dt class="text-gray-500">Años jugando</dt><dd class="text-gray-800">{{ questionnaire.years_playing|default:"—" }}</dd></div>
+                    <div><dt class="text-gray-500">Entrenos/partidos semana</dt><dd class="text-gray-800">{{ questionnaire.weekly_trainings|default:"—" }} / {{ questionnaire.weekly_matches|default:"—" }}</dd></div>
+                </dl>
+            </div>
+            <div class="card p-5">
+                <h4 class="section-title mb-3">Valoración física</h4>
+                {% if questionnaire.ratings %}
+                <div class="space-y-2">
+                    {% for label, value in questionnaire.ratings %}
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">{{ label }}</span>
+                        <span class="font-semibold text-gray-900">{{ value }}/5</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}<p class="text-sm text-gray-500">Sin valorar.</p>{% endif %}
+            </div>
+            <div class="card p-5">
+                <h4 class="section-title mb-3">Salud y lesiones</h4>
+                {% if questionnaire.injuries %}
+                <div class="flex flex-wrap gap-1.5 mb-3">
+                    {% for label in questionnaire.injuries %}<span class="badge badge-gray">{{ label }}</span>{% endfor %}
+                </div>
+                {% endif %}
+                <dl class="space-y-2 text-sm">
+                    <div><dt class="text-gray-500">Molestia actual</dt><dd class="text-gray-800">{{ questionnaire.current_pain|default:"—" }}</dd></div>
+                    <div><dt class="text-gray-500">Tratamiento en curso</dt><dd class="text-gray-800">{{ questionnaire.physio_treatment|default:"—" }}</dd></div>
+                    <div><dt class="text-gray-500">Enfermedades</dt><dd class="text-gray-800">{{ questionnaire.medical_conditions|default:"—" }}</dd></div>
+                </dl>
+            </div>
+            <div class="card p-5">
+                <h4 class="section-title mb-3">Objetivos</h4>
+                {% if questionnaire.objectives %}
+                <div class="flex flex-wrap gap-1.5">
+                    {% for label in questionnaire.objectives %}<span class="badge badge-green">{{ label }}</span>{% endfor %}
+                </div>
+                {% else %}<p class="text-sm text-gray-500">Sin marcar.</p>{% endif %}
+            </div>
+            <div class="card p-5 lg:col-span-2">
+                <h4 class="section-title mb-3">Disponibilidad e información para los padres</h4>
+                <dl class="space-y-2 text-sm">
+                    <div><dt class="text-gray-500">Días / horario</dt><dd class="text-gray-800">{{ questionnaire.available_days|default:"—" }} · {{ questionnaire.available_schedule|default:"—" }}</dd></div>
+                    <div><dt class="text-gray-500">Fechas importantes</dt><dd class="text-gray-800 whitespace-pre-line">{{ questionnaire.important_dates|default:"—" }}</dd></div>
+                    <div><dt class="text-gray-500">Notas de los padres</dt><dd class="text-gray-800 whitespace-pre-line">{{ questionnaire.parent_notes|default:"—" }}</dd></div>
+                </dl>
+            </div>
+        </div>
+        {% else %}
+        <div class="card p-8 text-center text-gray-500">Aún no se ha rellenado el cuestionario inicial.</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <!-- NOTAS -->
     <div x-show="tab === 'notas'" class="space-y-4" x-cloak>
         <div class="card p-5">
@@ -315,6 +420,7 @@
 
 {% block extra_js %}
 <script src="{% static 'js/toptrack-charts.js' %}"></script>
+<script src="{% static 'js/toptrack-calendar.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (!window.TopTrackCharts) return;

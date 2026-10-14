@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Mis bonos · {{ SITE_NAME }}{% endblock %}
 {% block page_title %}Mis bonos{% endblock %}
 
@@ -43,7 +44,8 @@
 
     <div>
         <h3 class="section-title mb-3">Mis sesiones</h3>
-        <div class="card divide-y divide-surface-border">
+        {% include 'components/session_calendar.html' with calendar_id='cal-my-bonos' sessions_calendar=sessions_calendar %}
+        <div class="card divide-y divide-surface-border mt-4">
             {% for s in sessions %}
             <div class="p-4">
                 <p class="text-sm font-medium text-gray-800">{{ s.date|date:"D d/m/Y H:i" }}</p>
@@ -53,4 +55,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/toptrack-calendar.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,7 @@
+{% if trend %}
+<span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full {% if improved %}bg-green-50 text-green-700{% else %}bg-red-50 text-red-700{% endif %}">
+    {% if trend.delta > 0 %}▲{% elif trend.delta < 0 %}▼{% else %}—{% endif %}
+    {{ trend.delta }}{{ unit }}
+    {% if trend.pct %}<span class="opacity-70">({{ trend.pct }}%)</span>{% endif %}
+</span>
+{% endif %}
