@@ -68,8 +68,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             'Demo creada. Entrena con: admin@toptrack.local / admin (o el que definiste), '
             'o con admin / admin para pruebas rápidas. '
-            'Clientes de ejemplo: ana@demo.com, luis@demo.com, marco@demo.com, '
-            'alberto@demo.com (contraseña: demo1234).'))
+            'Clientes de ejemplo: ana/ana, luis/luis, marco/marco, alberto/alberto.'))
 
     # ------------------------------------------------------------------ utils
     def _trainer(self):
@@ -100,13 +99,28 @@ class Command(BaseCommand):
         if not EnduranceTestType.objects.exists():
             EnduranceTestType.objects.get_or_create(name='Plancha', defaults={'unit': 'segundos'})
 
-    def _client(self, email, first, last, phone, profile_type, **profile_kwargs):
-        user, created = User.objects.get_or_create(
-            email=email,
-            defaults={'username': f'demo-{email.split("@")[0]}', 'role': 'cliente',
-                      'first_name': first, 'last_name': last, 'phone': phone, 'is_active': True})
-        if created:
-            user.set_password('demo1234')
+    def _client(self, username, first, last, phone, profile_type, legacy_email=None, **profile_kwargs):
+        """
+        Alta del cliente demo con login simplificado: usuario y contraseña son
+        la misma palabra corta (ej. ana/ana), igual que el entrenador rápido
+        admin/admin. `legacy_email` migra cuentas creadas por una versión
+        anterior de este comando (ana@demo.com) sin duplicar al cliente.
+        """
+        user = User.objects.filter(email__iexact=username).first()
+        migrating = False
+        if not user and legacy_email:
+            user = User.objects.filter(email__iexact=legacy_email).first()
+            migrating = user is not None
+        if user is None:
+            user = User(username=f'demo-{username}', role='cliente',
+                        first_name=first, last_name=last, phone=phone, is_active=True)
+            user.email = username
+            user.set_password(username)
+            user.save()
+        elif migrating:
+            user.email = username
+            user.set_password(username)
+            user.is_active = True
             user.save()
         profile, _ = ClientProfile.objects.get_or_create(
             user=user,
@@ -128,7 +142,7 @@ class Command(BaseCommand):
 
     # --------------------------------------------------------------- clientes
     def _completo(self):
-        c = self._client('ana@demo.com', 'Ana', 'García', '600111222', 'completo',
+        c = self._client('ana', 'Ana', 'García', '600111222', 'completo', legacy_email='ana@demo.com',
                          goal='Perder grasa y ganar fuerza en tren inferior.')
         self._bono_with_sessions(c, 'individual', 10, 8)
         # 6 meses de composición corporal
@@ -226,7 +240,7 @@ class Command(BaseCommand):
             nutrition.pdf.save('plan-alimentacion-ana.pdf', ContentFile(pdf_bytes), save=True)
 
     def _basico(self):
-        c = self._client('luis@demo.com', 'Luis', 'Martín', '600333444', 'basico',
+        c = self._client('luis', 'Luis', 'Martín', '600333444', 'basico', legacy_email='luis@demo.com',
                          goal='Mantenerse activo y controlar el peso.')
         self._bono_with_sessions(c, 'grupo', 20, 19)  # queda 1 -> aviso
         if not c.body_measurements.exists():
@@ -240,7 +254,7 @@ class Command(BaseCommand):
                 w -= random.uniform(0.3, 0.8); fat -= random.uniform(0.2, 0.6)
 
     def _futbolista(self):
-        c = self._client('marco@demo.com', 'Marco', 'Ruiz', '600555666', 'futbolista',
+        c = self._client('marco', 'Marco', 'Ruiz', '600555666', 'futbolista', legacy_email='marco@demo.com',
                          goal='Mejorar velocidad y potencia de salto.',
                          birth_date=date.today() - timedelta(days=365 * 13),
                          position='Centrocampista',
@@ -265,7 +279,7 @@ class Command(BaseCommand):
                 jv += random.uniform(0.01, 0.04)
 
     def _alberto_azul(self):
-        c = self._client('alberto@demo.com', 'Alberto', 'Azul', '600123123', 'completo',
+        c = self._client('alberto', 'Alberto', 'Azul', '600123123', 'completo', legacy_email='alberto@demo.com',
                          goal='Ganar masa muscular y fuerza en press banca.')
         self._bono_with_sessions(c, 'individual', 15, 6)
         if not c.body_measurements.exists():
