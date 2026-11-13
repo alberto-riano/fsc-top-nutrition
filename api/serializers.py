@@ -4,7 +4,8 @@ from rest_framework import serializers
 from accounts.models import DeviceToken, User
 from bonos.models import Bono, Session
 from clients.models import ClientProfile
-from metrics.models import BodyMeasurement, EnduranceTest, StrengthPR
+from metrics.body_map import FIELD_NAMES
+from metrics.models import BodyMeasurement, CircumferenceMeasurement, EnduranceTest, StrengthPR
 from plans.models import Plan
 
 
@@ -71,6 +72,17 @@ class BodyMeasurementSerializer(serializers.ModelSerializer):
             'id', 'date', 'weight_kg', 'body_fat_pct', 'muscle_mass_pct',
             'water_pct', 'visceral_fat', 'basal_metabolism', 'notes',
         )
+
+
+class CircumferenceMeasurementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CircumferenceMeasurement
+        fields = ('id', 'date', *FIELD_NAMES, 'notes')
+
+    def validate(self, attrs):
+        if not any(attrs.get(f) is not None for f in FIELD_NAMES):
+            raise serializers.ValidationError('Indica al menos una medida.')
+        return attrs
 
 
 class StrengthPRSerializer(serializers.ModelSerializer):

@@ -9,13 +9,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from bonos.models import Bono
 from clients.models import ClientProfile
-from metrics.models import BodyMeasurement, EnduranceTest, StrengthPR
+from metrics.models import BodyMeasurement, CircumferenceMeasurement, EnduranceTest, StrengthPR
 from plans.models import Plan
 
 from .permissions import ClientProfileMixin, IsTrainer, TrainerClientMixin
 from .serializers import (
     BodyMeasurementSerializer,
     BonoSerializer,
+    CircumferenceMeasurementSerializer,
     ClientListItemSerializer,
     ClientProfileSerializer,
     DeviceTokenSerializer,
@@ -88,6 +89,13 @@ class BodyMeasurementListView(ClientProfileMixin, generics.ListAPIView):
         return BodyMeasurement.objects.filter(client=self.get_client_profile())
 
 
+class CircumferenceListView(ClientProfileMixin, generics.ListAPIView):
+    serializer_class = CircumferenceMeasurementSerializer
+
+    def get_queryset(self):
+        return CircumferenceMeasurement.objects.filter(client=self.get_client_profile())
+
+
 class StrengthPRListView(ClientProfileMixin, generics.ListAPIView):
     serializer_class = StrengthPRSerializer
 
@@ -149,6 +157,17 @@ class TrainerBodyMeasurementListView(TrainerClientMixin, generics.ListAPIView):
 
     def get_queryset(self):
         return BodyMeasurement.objects.filter(client=self.get_client())
+
+
+class TrainerCircumferenceListCreateView(TrainerClientMixin, generics.ListCreateAPIView):
+    permission_classes = [IsTrainer]
+    serializer_class = CircumferenceMeasurementSerializer
+
+    def get_queryset(self):
+        return CircumferenceMeasurement.objects.filter(client=self.get_client())
+
+    def perform_create(self, serializer):
+        serializer.save(client=self.get_client())
 
 
 class TrainerStrengthPRListView(TrainerClientMixin, generics.ListAPIView):

@@ -14,6 +14,7 @@ urlpatterns = [
 
     path('bonos/', views.BonoListView.as_view(), name='bonos'),
     path('metrics/body/', views.BodyMeasurementListView.as_view(), name='body-measurements'),
+    path('metrics/circumference/', views.CircumferenceListView.as_view(), name='circumference'),
     path('metrics/strength/', views.StrengthPRListView.as_view(), name='strength-prs'),
     path('metrics/endurance/', views.EnduranceTestListView.as_view(), name='endurance-tests'),
     path('plans/', views.PlanListView.as_view(), name='plans'),
@@ -26,6 +27,7 @@ urlpatterns = [
     path('trainer/clients/<uuid:client_pk>/bonos/', views.TrainerBonoListView.as_view(), name='trainer-bonos'),
     path('trainer/clients/<uuid:client_pk>/sessions/mark/', views.TrainerMarkSessionView.as_view(), name='trainer-mark-session'),
     path('trainer/clients/<uuid:client_pk>/metrics/body/', views.TrainerBodyMeasurementListView.as_view(), name='trainer-body-measurements'),
+    path('trainer/clients/<uuid:client_pk>/metrics/circumference/', views.TrainerCircumferenceListCreateView.as_view(), name='trainer-circumference'),
     path('trainer/clients/<uuid:client_pk>/metrics/strength/', views.TrainerStrengthPRListView.as_view(), name='trainer-strength-prs'),
     path('trainer/clients/<uuid:client_pk>/metrics/endurance/', views.TrainerEnduranceTestListView.as_view(), name='trainer-endurance-tests'),
     path('trainer/clients/<uuid:client_pk>/plans/', views.TrainerPlanListCreateView.as_view(), name='trainer-plans'),
