@@ -1,5 +1,5 @@
 """
-Datos de demostración para enseñar TopTrack recién desplegado.
+Datos de demostración para enseñar TraCoach recién desplegado.
 
 Crea (idempotente por email):
   · el entrenador/admin,

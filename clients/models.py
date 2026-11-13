@@ -7,7 +7,7 @@ from django.db import models
 
 class ClientProfile(models.Model):
     """
-    Perfil de un cliente de FSC Top Nutrition. Relación 1:1 con el usuario que
+    Perfil de un cliente de TraCoach. Relación 1:1 con el usuario que
     inicia sesión. El `profile_type` condiciona qué secciones se muestran tanto
     en el panel del cliente como en la ficha del entrenador.
     """

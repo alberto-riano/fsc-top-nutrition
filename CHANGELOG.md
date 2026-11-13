@@ -1,6 +1,6 @@
 # Changelog
 
-Todas las novedades relevantes de TopTrack (FSC Top Nutrition). Sigue
+Todas las novedades relevantes de TraCoach (FSC Top Nutrition). Sigue
 [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [1.0.0] - 2026-07-29

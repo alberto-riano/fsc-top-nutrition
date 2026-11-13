@@ -29,6 +29,34 @@
     </div>
     {% endif %}
 
+    {% if client.shows_body_composition %}
+    <div class="card p-5" data-chart-wrap>
+        <h3 class="section-title mb-4">Medidas corporales (perímetros)</h3>
+        {% if circumference_snapshot %}
+        {% if circumference_highlight %}
+        <p class="mb-4 rounded-xl bg-brand-50 text-brand-700 text-sm font-medium px-4 py-3">
+            {% if circumference_highlight.delta > 0 %}Has ganado{% else %}Has reducido{% endif %}
+            {{ circumference_highlight.delta|cut:"-" }} cm de {{ circumference_highlight.label|lower }} desde tu primera medición. ¡Sigue así!
+        </p>
+        {% endif %}
+        {% include 'components/body_map_view.html' with snapshot=circumference_snapshot %}
+        {% if circumference_chart %}
+        <div class="relative h-64 mt-5"><canvas id="chart-cm"></canvas></div>
+        <div class="mt-4 flex flex-wrap gap-2">
+            {% for c in circumference_chart %}
+            <div class="rounded-xl bg-surface-secondary px-3 py-2">
+                <p class="text-xs text-gray-500">{{ c.name }}</p>
+                <p class="text-sm font-bold text-gray-900">{{ c.values|last }} cm
+                    {% if c.trend.delta %}<span class="ml-1 text-xs font-semibold text-gray-500">({% if c.trend.delta > 0 %}+{% endif %}{{ c.trend.delta }})</span>{% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% else %}<p class="text-sm text-gray-500">Tu entrenador/a aún no ha registrado tus medidas — pronto verás aquí tu evolución.</p>{% endif %}
+    </div>
+    {% endif %}
+
     {% if client.shows_strength_prs %}
     <div class="card p-5" data-chart-wrap>
         <h3 class="section-title mb-4">Fuerza</h3>
@@ -73,6 +101,7 @@
 {% if client.shows_body_composition %}{{ body_chart|json_script:"data-body" }}{% endif %}
 {% if client.shows_strength_prs %}{{ strength_chart|json_script:"data-strength" }}{% endif %}
 {% if client.shows_endurance_tests %}{{ endurance_chart|json_script:"data-endurance" }}{% endif %}
+{% if client.shows_body_composition %}{{ circumference_chart|json_script:"data-cm" }}{% endif %}
 {% endblock %}
 
 {% block extra_js %}
@@ -83,6 +112,7 @@
         TopTrackCharts.renderBody('chart-body', 'data-body');
         TopTrackCharts.renderMulti('chart-strength', 'data-strength');
         TopTrackCharts.renderMulti('chart-endurance', 'data-endurance');
+        TopTrackCharts.renderMulti('chart-cm', 'data-cm');
     });
 </script>
 {% endblock %}

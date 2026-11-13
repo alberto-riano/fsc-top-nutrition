@@ -1,6 +1,7 @@
 from django import forms
 
-from .models import BodyMeasurement, StrengthPR, EnduranceTest
+from .body_map import POINTS
+from .models import BodyMeasurement, StrengthPR, EnduranceTest, CircumferenceMeasurement
 
 INPUT = (
     'block w-full rounded-xl border-gray-300 bg-white px-3 py-2.5 '
@@ -47,3 +48,24 @@ class EnduranceTestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         _style(self.fields)
+
+
+class CircumferenceMeasurementForm(forms.ModelForm):
+    class Meta:
+        model = CircumferenceMeasurement
+        fields = ['date'] + [p['field'] for p in POINTS] + ['notes']
+        widgets = {'date': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style(self.fields)
+        for p in POINTS:
+            self.fields[p['field']].widget.attrs.update({
+                'x-model.number': f"values.{p['field']}",
+                'inputmode': 'decimal',
+                'placeholder': '—',
+                'step': '0.5',
+                'class': ('w-12 rounded-full border-0 bg-transparent px-1 py-1.5 text-center '
+                           'text-xs font-bold text-gray-900 placeholder:text-gray-400 '
+                           'focus:ring-0 focus:outline-none'),
+            })

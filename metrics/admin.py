@@ -1,6 +1,9 @@
 from django.contrib import admin
 
-from .models import BodyMeasurement, Exercise, StrengthPR, EnduranceTestType, EnduranceTest
+from .models import (
+    BodyMeasurement, Exercise, StrengthPR, EnduranceTestType, EnduranceTest,
+    CircumferenceMeasurement,
+)
 
 
 @admin.register(Exercise)
@@ -29,3 +32,9 @@ class StrengthPRAdmin(admin.ModelAdmin):
 @admin.register(EnduranceTest)
 class EnduranceTestAdmin(admin.ModelAdmin):
     list_display = ('client', 'test_type', 'value', 'date')
+
+
+@admin.register(CircumferenceMeasurement)
+class CircumferenceMeasurementAdmin(admin.ModelAdmin):
+    list_display = ('client', 'date', 'waist_cm', 'hip_cm')
+    search_fields = ('client__user__first_name', 'client__user__last_name')

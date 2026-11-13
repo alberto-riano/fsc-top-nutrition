@@ -154,6 +154,7 @@ def client_detail(request, pk):
         'body_measurements': list(profile.body_measurements.all()[:20]),
         'strength_prs': list(profile.strength_prs.select_related('exercise').all()[:30]),
         'endurance_tests': list(profile.endurance_tests.select_related('test_type').all()[:30]),
+        'circumference_measurements': list(profile.circumference_measurements.all()[:20]),
         'plans': list(profile.plans.all()),
         'questionnaire': getattr(profile, 'questionnaire', None),
         # Catálogos para los formularios rápidos
@@ -163,5 +164,7 @@ def client_detail(request, pk):
         'body_chart': charts.body_series(profile),
         'strength_chart': charts.strength_series(profile),
         'endurance_chart': charts.endurance_series(profile),
+        'circumference_chart': charts.circumference_series(profile),
+        'circumference_snapshot': charts.circumference_snapshot(profile),
     }
     return render(request, 'clients/detail.html', context)

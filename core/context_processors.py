@@ -11,7 +11,7 @@ from .version import VERSION
 
 def branding(request):
     return {
-        'SITE_NAME': getattr(settings, 'SITE_NAME', 'TopTrack'),
+        'SITE_NAME': getattr(settings, 'SITE_NAME', 'TraCoach'),
         'SITE_TAGLINE': getattr(settings, 'SITE_TAGLINE', ''),
         'APP_VERSION': VERSION,
         'APP_BUILD': getattr(settings, 'APP_BUILD', ''),

@@ -5,6 +5,7 @@ Devuelve estructuras JSON-serializables (listas de fechas y valores) para que
 las plantillas las incrusten y Chart.js las pinte. La lógica vive aquí para no
 duplicarla entre la ficha del entrenador y el panel del cliente.
 """
+from .body_map import POINTS
 from .models import BodyMeasurement, StrengthPR, EnduranceTest
 
 
@@ -83,3 +84,44 @@ def endurance_series(client):
         ))
         result.append({'name': name, 'best': best, 'trend': trend, 'improved': improved, **data})
     return result
+
+
+def circumference_series(client):
+    """Una serie por punto de perímetro (cm), solo para los puntos con algún dato."""
+    rows = list(client.circumference_measurements.order_by('date'))
+    labels = [_fmt(r.date) for r in rows]
+    result = []
+    for p in POINTS:
+        values = [float(v) if (v := getattr(r, p['field'])) is not None else None for r in rows]
+        if not any(v is not None for v in values):
+            continue
+        result.append({
+            'field': p['field'], 'name': p['label'], 'labels': labels, 'values': values,
+            'trend': _trend(values),
+        })
+    return result
+
+
+def circumference_snapshot(client):
+    """Última medición y su variación frente a la primera, por punto (mapa corporal)."""
+    rows = list(client.circumference_measurements.order_by('date'))
+    if not rows:
+        return None
+    first, last = rows[0], rows[-1]
+    points = []
+    for p in POINTS:
+        last_v = getattr(last, p['field'])
+        first_v = getattr(first, p['field'])
+        delta = round(float(last_v) - float(first_v), 1) if (last_v is not None and first_v is not None) else None
+        points.append({**p, 'value': last_v, 'delta': delta})
+    return {'date': last.date, 'points': points, 'count': len(rows)}
+
+
+def circumference_highlight(snapshot):
+    """Punto con mayor variación (valor absoluto) desde la primera medición, para un mensaje motivacional."""
+    if not snapshot:
+        return None
+    candidates = [p for p in snapshot['points'] if p['delta']]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda p: abs(p['delta']))

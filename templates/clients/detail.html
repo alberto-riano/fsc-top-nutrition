@@ -80,6 +80,7 @@
                     {% if not active_bono %}<p class="text-xs text-amber-600">No hay bono activo. Crea uno en «Sesiones y bonos».</p>{% endif %}
                     <a href="{% url 'clients:invite_link' client.pk %}" class="btn-secondary w-full">Generar enlace de invitación</a>
                     {% if client.shows_body_composition %}<a href="{% url 'metrics:body_create' client.pk %}" class="btn-secondary w-full">+ Medición corporal</a>{% endif %}
+                    {% if client.shows_body_composition %}<a href="{% url 'metrics:circumference_create' client.pk %}" class="btn-secondary w-full">+ Medidas corporales</a>{% endif %}
                     {% if client.shows_strength_prs %}<a href="{% url 'metrics:pr_create' client.pk %}" class="btn-secondary w-full">+ Récord de fuerza</a>{% endif %}
                     {% if client.shows_endurance_tests %}<a href="{% url 'metrics:test_create' client.pk %}" class="btn-secondary w-full">+ Test físico</a>{% endif %}
                 </div>
@@ -195,6 +196,44 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div class="card p-5" data-chart-wrap>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="section-title">Medidas corporales (perímetros)</h3>
+                <a href="{% url 'metrics:circumference_create' client.pk %}" class="btn-secondary">+ Medidas</a>
+            </div>
+            {% if circumference_snapshot %}
+            {% include 'components/body_map_view.html' with snapshot=circumference_snapshot %}
+            {% if circumference_chart %}
+            <div class="relative h-64 mt-5"><canvas id="chart-cm"></canvas></div>
+            <div class="mt-4 flex flex-wrap gap-2">
+                {% for c in circumference_chart %}
+                <div class="rounded-xl bg-surface-secondary px-3 py-2">
+                    <p class="text-xs text-gray-500">{{ c.name }}</p>
+                    <p class="text-sm font-bold text-gray-900">{{ c.values|last }} cm
+                        {% if c.trend.delta %}<span class="ml-1 text-xs font-semibold text-gray-500">({% if c.trend.delta > 0 %}+{% endif %}{{ c.trend.delta }})</span>{% endif %}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="mt-4 divide-y divide-surface-border">
+                {% for m in circumference_measurements %}
+                <div class="py-3 flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="text-sm font-medium text-gray-900">{{ m.date|date:"d/m/Y" }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ m.summary }}</p>
+                    </div>
+                    <form method="post" action="{% url 'metrics:circumference_delete' m.pk %}" data-confirm="¿Eliminar estas medidas?" data-confirm-label="Eliminar">{% csrf_token %}
+                        <button class="text-red-600 hover:text-red-700 text-xs shrink-0">Borrar</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-500 text-center py-8">Sin medidas registradas todavía.</p>
+            {% endif %}
         </div>
         {% endif %}
 
@@ -416,6 +455,7 @@
 {{ body_chart|json_script:"data-body" }}
 {{ strength_chart|json_script:"data-strength" }}
 {{ endurance_chart|json_script:"data-endurance" }}
+{{ circumference_chart|json_script:"data-cm" }}
 {% endblock %}
 
 {% block extra_js %}
@@ -427,6 +467,7 @@
         TopTrackCharts.renderBody('chart-body', 'data-body');
         TopTrackCharts.renderMulti('chart-strength', 'data-strength');
         TopTrackCharts.renderMulti('chart-endurance', 'data-endurance');
+        TopTrackCharts.renderMulti('chart-cm', 'data-cm');
     });
 </script>
 {% endblock %}

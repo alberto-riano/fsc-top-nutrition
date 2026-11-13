@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ title }} · {{ SITE_NAME }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <p class="text-sm text-gray-500 mb-4">Cliente: <span class="text-gray-900 font-medium">{{ client.full_name }}</span></p>
+
+    {% if last_values %}{{ last_values|json_script:"cm-last-values" }}{% endif %}
+
+    <form method="post" class="space-y-5" x-data="topTrackBodyMapEditor('cm-last-values')">
+        {% csrf_token %}
+
+        <div class="card p-5">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <label for="{{ form.date.id_for_label }}" class="label">Fecha</label>
+                    {{ form.date }}
+                </div>
+                {% if last %}
+                <button type="button" class="btn-secondary self-end" @click="copyLast()">
+                    Copiar últimas medidas ({{ last.date|date:"d/m/Y" }})
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="section-title">Mapa corporal</h3>
+                <span class="text-xs font-semibold px-2 py-1 rounded-full bg-surface-secondary text-gray-600"
+                      x-text="filledCount + '/10 medidas'"></span>
+            </div>
+            <div class="relative mx-auto text-surface-tertiary" style="width:100%; max-width:260px; aspect-ratio:240/560;">
+                {% include 'components/body_silhouette.html' %}
+                {% for p in field_points %}
+                <div class="absolute flex flex-col items-center gap-0.5" style="left:{{ p.x }}%; top:{{ p.y }}%; transform:translate(-50%,-50%); width:4.5rem;">
+                    <span class="text-[9px] font-semibold text-gray-500 bg-white/90 px-1 rounded whitespace-nowrap">{{ p.label }}</span>
+                    <div class="flex items-center justify-center w-full rounded-full border-2 bg-white shadow-sm"
+                         :class="values.{{ p.field }} !== '' ? 'border-brand-500' : 'border-gray-300'">
+                        {{ p.bound_field }}
+                    </div>
+                    {% if p.copy_from %}
+                    <button type="button" class="text-[9px] text-brand-600 font-semibold underline whitespace-nowrap"
+                            @click="values.{{ p.field }} = values.{{ p.copy_from }}">= izq.</button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <p class="mt-4 text-xs text-gray-500 text-center">Todos los puntos son opcionales — mide solo lo que necesites hoy.</p>
+        </div>
+
+        <div class="card p-5">
+            <label for="{{ form.notes.id_for_label }}" class="label">Notas</label>
+            {{ form.notes }}
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <a href="{% url 'clients:detail' client.pk %}?tab=metricas" class="btn-ghost">Cancelar</a>
+            <button type="submit" class="btn-primary">Guardar medidas</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/toptrack-bodymap.js' %}"></script>
+{% endblock %}

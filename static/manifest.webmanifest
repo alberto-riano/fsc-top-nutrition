@@ -1,7 +1,7 @@
 {
-  "name": "TopTrack · FSC Top Nutrition",
-  "short_name": "TopTrack",
-  "description": "Seguimiento de entrenamiento personal de FSC Top Nutrition.",
+  "name": "TraCoach",
+  "short_name": "TraCoach",
+  "description": "Seguimiento de entrenamiento personal · TraCoach (FSC Top Nutrition).",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

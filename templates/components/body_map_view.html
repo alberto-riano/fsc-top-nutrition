@@ -1,0 +1,22 @@
+{% comment %}
+Mapa corporal de solo lectura: valores actuales + variación desde la primera
+medición. Espera `snapshot` = metrics.charts.circumference_snapshot(client).
+{% endcomment %}
+<div class="relative mx-auto text-surface-tertiary" style="width:100%; max-width:220px; aspect-ratio:240/560;">
+    {% include 'components/body_silhouette.html' %}
+    {% for p in snapshot.points %}
+    <div class="absolute flex flex-col items-center" style="left:{{ p.x }}%; top:{{ p.y }}%; transform:translate(-50%,-50%); width:4.5rem;">
+        <span class="text-[9px] font-semibold text-gray-500 bg-white/90 px-1 rounded whitespace-nowrap">{{ p.label }}</span>
+        <div class="rounded-full bg-white border-2 border-surface-border shadow-sm px-2 py-1 text-center min-w-[2.75rem]">
+            {% if p.value is not None %}
+            <p class="text-xs font-bold text-gray-900">{{ p.value }}</p>
+            {% if p.delta is not None %}
+            <p class="text-[9px] text-gray-500">{% if p.delta > 0 %}+{% endif %}{{ p.delta }} cm</p>
+            {% endif %}
+            {% else %}
+            <p class="text-xs text-gray-400">—</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>

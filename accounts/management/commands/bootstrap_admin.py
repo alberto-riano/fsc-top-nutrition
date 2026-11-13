@@ -1,5 +1,5 @@
 """
-Crea el usuario ENTRENADOR (admin) de TopTrack. Es superusuario para poder
+Crea el usuario ENTRENADOR (admin) de TraCoach. Es superusuario para poder
 entrar también a /admin/. Idempotente.
 
 Lee variables de entorno: ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_USERNAME.

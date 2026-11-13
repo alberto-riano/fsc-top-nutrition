@@ -1,11 +1,11 @@
 /**
- * Configuración de Tailwind para TopTrack.
+ * Configuración de Tailwind para TraCoach.
  *
  * El tema (colores de marca, superficies, tipografía) está centralizado aquí.
  * Re-tematizar el producto para otro vertical es cambiar la paleta `brand`
  * y las superficies `surface`, y reconstruir el CSS.
  *
- * Marca FSC Top Nutrition: verde vibrante sobre fondo casi negro.
+ * Marca TraCoach: verde vibrante sobre fondo casi negro.
  */
 /** @type {import('tailwindcss').Config} */
 module.exports = {

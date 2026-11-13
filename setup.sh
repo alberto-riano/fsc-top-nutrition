@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# setup.sh — Provisión completa de TopTrack (FSC Top Nutrition) en una EC2 Ubuntu vacía.
+# setup.sh — Provisión completa de TraCoach (FSC Top Nutrition) en una EC2 Ubuntu vacía.
 #
 #   1. git clone <repo> topnutrition
 #   2. cd topnutrition
@@ -53,7 +53,7 @@ PUBLIC_IP="$(get_public_ip)"
 # ---------------------------------------------------------------------------
 # 1. Preguntas de configuración
 # ---------------------------------------------------------------------------
-title "Configuración de TopTrack (FSC Top Nutrition)"
+title "Configuración de TraCoach (FSC Top Nutrition)"
 echo "IP pública detectada: ${PUBLIC_IP:-(no detectada)}"
 echo "Se creará el ENTRENADOR (admin). Se inicia sesión con el EMAIL (no con usuario)."
 echo
@@ -69,8 +69,8 @@ echo
 echo "Email saliente (opcional; para 'olvidé mi contraseña' e invitaciones):"
 read -rp "  EMAIL_HOST (vacío = sin envío, cae a consola) []: " EMAIL_HOST_INPUT
 EMAIL_HOST_INPUT="${EMAIL_HOST_INPUT:-}"
-read -rp "  DEFAULT_FROM_EMAIL [TopTrack <no-reply@fsctopnutrition.com>]: " EMAIL_FROM_INPUT
-EMAIL_FROM_INPUT="${EMAIL_FROM_INPUT:-TopTrack <no-reply@fsctopnutrition.com>}"
+read -rp "  DEFAULT_FROM_EMAIL [TraCoach <no-reply@fsctopnutrition.com>]: " EMAIL_FROM_INPUT
+EMAIL_FROM_INPUT="${EMAIL_FROM_INPUT:-TraCoach <no-reply@fsctopnutrition.com>}"
 read -rp "  EMAIL_HOST_USER []: " EMAIL_USER_INPUT
 EMAIL_USER_INPUT="${EMAIL_USER_INPUT:-}"
 read -rp "  EMAIL_HOST_PASSWORD []: " EMAIL_PASS_INPUT
@@ -141,7 +141,7 @@ ALLOWED_HOSTS='${ALLOWED_HOSTS}'
 CSRF_TRUSTED_ORIGINS='${CSRF_ORIGINS}'
 # Entre comillas: setup.sh y deploy.sh vuelven a "source"ar este .env como bash,
 # y los valores con espacios (p. ej. la tagline) romperían ese source sin comillas.
-SITE_NAME='TopTrack'
+SITE_NAME='TraCoach'
 SITE_TAGLINE='FSC Top Nutrition'
 SUPPORT_EMAIL=info@fsctopnutrition.com
 

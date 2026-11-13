@@ -66,6 +66,7 @@ def _client_home(request):
 @client_required
 def my_progress(request):
     profile = request.user.client_profile
+    circumference_snapshot = charts.circumference_snapshot(profile)
     context = {
         'client': profile,
         'body_measurements': list(profile.body_measurements.all()[:20]),
@@ -74,6 +75,9 @@ def my_progress(request):
         'body_chart': charts.body_series(profile),
         'strength_chart': charts.strength_series(profile),
         'endurance_chart': charts.endurance_series(profile),
+        'circumference_chart': charts.circumference_series(profile),
+        'circumference_snapshot': circumference_snapshot,
+        'circumference_highlight': charts.circumference_highlight(circumference_snapshot),
     }
     return render(request, 'dashboard/my_progress.html', context)
 

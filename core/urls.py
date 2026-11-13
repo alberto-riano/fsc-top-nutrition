@@ -1,5 +1,5 @@
 """
-URL configuration para TopTrack.
+URL configuration para TraCoach.
 """
 from django.contrib import admin
 from django.urls import path, include

@@ -1,4 +1,4 @@
-# TopTrack · FSC Top Nutrition
+# TraCoach · FSC Top Nutrition
 
 Aplicación web de seguimiento de entrenamiento personal para **FSC Top Nutrition**
 (Alcobendas, C/ Libertad 59). El entrenador (admin) gestiona clientes, sesiones,

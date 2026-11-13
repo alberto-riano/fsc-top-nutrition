@@ -1,5 +1,5 @@
 """
-Django settings para TopTrack (FSC Top Nutrition).
+Django settings para TraCoach (FSC Top Nutrition).
 
 App single-tenant (un solo centro, un solo entrenador/admin). Pensada para
 reutilizar las mismas convenciones que el resto de verticales: python-dotenv,
@@ -204,7 +204,7 @@ SIMPLE_JWT = {
 EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send'
 
 # Branding del producto (centralizado para reutilizar el repo en otros verticales)
-SITE_NAME = os.environ.get('SITE_NAME', 'TopTrack')
+SITE_NAME = os.environ.get('SITE_NAME', 'TraCoach')
 SITE_TAGLINE = os.environ.get('SITE_TAGLINE', 'FSC Top Nutrition')
 APP_BUILD = os.environ.get('APP_BUILD', '')
 SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL', 'info@fsctopnutrition.com')

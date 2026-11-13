@@ -3,6 +3,8 @@ from datetime import date
 
 from django.db import models
 
+from .body_map import POINTS
+
 
 class BodyMeasurement(models.Model):
     """Composición corporal en una fecha (datos de báscula)."""
@@ -39,6 +41,47 @@ class BodyMeasurement(models.Model):
 
     def __str__(self):
         return f"{self.date:%d/%m/%Y} · {self.weight_kg} kg"
+
+
+class CircumferenceMeasurement(models.Model):
+    """Perímetros corporales (cm, cinta métrica) para el 'mapa corporal'."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    client = models.ForeignKey(
+        'clients.ClientProfile',
+        on_delete=models.CASCADE,
+        related_name='circumference_measurements',
+        verbose_name='Cliente',
+    )
+    date = models.DateField('Fecha', default=date.today)
+
+    neck_cm = models.DecimalField('Cuello (cm)', max_digits=5, decimal_places=1, null=True, blank=True)
+    chest_cm = models.DecimalField('Pecho (cm)', max_digits=5, decimal_places=1, null=True, blank=True)
+    waist_cm = models.DecimalField('Cintura (cm)', max_digits=5, decimal_places=1, null=True, blank=True)
+    hip_cm = models.DecimalField('Cadera (cm)', max_digits=5, decimal_places=1, null=True, blank=True)
+    arm_l_cm = models.DecimalField('Brazo izq. (cm)', max_digits=5, decimal_places=1, null=True, blank=True)
+    arm_r_cm = models.DecimalField('Brazo der. (cm)', max_digits=5, decimal_places=1, null=True, blank=True)
+    thigh_l_cm = models.DecimalField('Muslo izq. (cm)', max_digits=5, decimal_places=1, null=True, blank=True)
+    thigh_r_cm = models.DecimalField('Muslo der. (cm)', max_digits=5, decimal_places=1, null=True, blank=True)
+    calf_l_cm = models.DecimalField('Pantorrilla izq. (cm)', max_digits=5, decimal_places=1, null=True, blank=True)
+    calf_r_cm = models.DecimalField('Pantorrilla der. (cm)', max_digits=5, decimal_places=1, null=True, blank=True)
+
+    notes = models.CharField('Notas', max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Medida corporal (perímetros)'
+        verbose_name_plural = 'Medidas corporales (perímetros)'
+        ordering = ['-date', '-created_at']
+
+    def __str__(self):
+        return f"Perímetros · {self.date:%d/%m/%Y}"
+
+    @property
+    def summary(self):
+        parts = [f"{p['label']}: {getattr(self, p['field'])} cm"
+                  for p in POINTS if getattr(self, p['field']) is not None]
+        return ' · '.join(parts) or 'Sin valores'
 
 
 class Exercise(models.Model):

@@ -11,4 +11,6 @@ urlpatterns = [
     path('fuerza/<uuid:pk>/borrar/', views.pr_delete, name='pr_delete'),
     path('cliente/<uuid:client_pk>/test/nuevo/', views.test_create, name='test_create'),
     path('test/<uuid:pk>/borrar/', views.test_delete, name='test_delete'),
+    path('cliente/<uuid:client_pk>/perimetros/nuevos/', views.circumference_create, name='circumference_create'),
+    path('perimetros/<uuid:pk>/borrar/', views.circumference_delete, name='circumference_delete'),
 ]

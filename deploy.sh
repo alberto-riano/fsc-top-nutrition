@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# deploy.sh — Actualiza TopTrack en la EC2: git pull, backup, migrate, estáticos, restart.
+# deploy.sh — Actualiza TraCoach en la EC2: git pull, backup, migrate, estáticos, restart.
 #
 set -euo pipefail
 
