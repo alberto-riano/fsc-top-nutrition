@@ -35,7 +35,7 @@ class ClientProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientProfile
         fields = (
-            'id', 'profile_type', 'start_date', 'goal', 'active',
+            'id', 'profile_type', 'sex', 'start_date', 'goal', 'active',
             'birth_date', 'position', 'full_name', 'initials', 'age',
             'sessions_left', 'low_sessions_alert', 'shows_body_composition',
             'shows_strength_prs', 'shows_endurance_tests', 'shows_plans',
@@ -192,6 +192,14 @@ class DeviceTokenSerializer(serializers.ModelSerializer):
 
 
 # -- Entrenador ---------------------------------------------------------------
+
+class ClientSexSerializer(serializers.ModelSerializer):
+    """Lo único que el entrenador cambia de la ficha desde la app: el sexo (silueta)."""
+
+    class Meta:
+        model = ClientProfile
+        fields = ('sex',)
+
 
 class ClientListItemSerializer(serializers.ModelSerializer):
     full_name = serializers.ReadOnlyField()

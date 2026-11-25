@@ -88,3 +88,19 @@ class TrainerApiTests(TestCase):
 
         res = self.trainer.post(url, {'weight_kg': '70', 'body_fat_pct': '60', 'muscle_mass_pct': '50'}, format='json')
         self.assertEqual(res.status_code, 400)
+
+    def test_trainer_sets_client_sex(self):
+        url = f'/api/v1/trainer/clients/{self.profile.pk}/'
+        res = self.trainer.patch(url, {'sex': 'mujer', 'goal': 'no se toca'}, format='json')
+        self.assertEqual(res.status_code, 200, res.content)
+        self.assertEqual(res.json()['sex'], 'mujer')
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.goal, '')
+        self.assertEqual(self.client_api.get('/api/v1/me/profile/').json()['sex'], 'mujer')
+        self.assertEqual(self.trainer.patch(url, {'sex': 'otro'}, format='json').status_code, 400)
+
+    def test_neck_is_no_longer_part_of_the_body_map(self):
+        url = f'/api/v1/trainer/clients/{self.profile.pk}/metrics/circumference/'
+        res = self.trainer.post(url, {'waist_cm': '80'}, format='json')
+        self.assertEqual(res.status_code, 201, res.content)
+        self.assertNotIn('neck_cm', res.json())

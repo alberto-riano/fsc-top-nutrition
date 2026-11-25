@@ -20,6 +20,7 @@ from .serializers import (
     CircumferenceMeasurementSerializer,
     ClientListItemSerializer,
     ClientProfileSerializer,
+    ClientSexSerializer,
     DeviceTokenSerializer,
     EnduranceTestSerializer,
     MarkSessionSerializer,
@@ -140,9 +141,19 @@ class TrainerClientListView(generics.ListAPIView):
     queryset = ClientProfile.objects.select_related('user').all()
 
 
-class TrainerClientDetailView(TrainerClientMixin, generics.RetrieveAPIView):
+class TrainerClientDetailView(TrainerClientMixin, generics.RetrieveUpdateAPIView):
+    """Ficha del cliente. PATCH solo admite `sex` (la silueta del mapa corporal)."""
+
     permission_classes = [IsTrainer]
     serializer_class = ClientProfileSerializer
+    http_method_names = ['get', 'patch', 'head', 'options']
+
+    def get_serializer_class(self):
+        return ClientSexSerializer if self.request.method == 'PATCH' else ClientProfileSerializer
+
+    def update(self, request, *args, **kwargs):
+        super().update(request, *args, **kwargs)
+        return Response(ClientProfileSerializer(self.get_object(), context=self.get_serializer_context()).data)
 
     def get_object(self):
         return self.get_client()

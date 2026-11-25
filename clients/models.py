@@ -12,6 +12,13 @@ class ClientProfile(models.Model):
     en el panel del cliente como en la ficha del entrenador.
     """
 
+    SEX_FEMALE = 'mujer'
+    SEX_MALE = 'hombre'
+    SEX_CHOICES = [
+        (SEX_FEMALE, 'Mujer'),
+        (SEX_MALE, 'Hombre'),
+    ]
+
     PROFILE_COMPLETO = 'completo'
     PROFILE_BASICO = 'basico'
     PROFILE_FUTBOLISTA = 'futbolista'
@@ -31,6 +38,8 @@ class ClientProfile(models.Model):
     profile_type = models.CharField(
         'Tipo de perfil', max_length=20, choices=PROFILE_CHOICES, default=PROFILE_COMPLETO)
 
+    # Solo para dibujar la silueta del mapa corporal; vacío = silueta neutra.
+    sex = models.CharField('Sexo', max_length=10, choices=SEX_CHOICES, blank=True)
     start_date = models.DateField('Fecha de alta', default=date.today)
     goal = models.TextField('Objetivo', blank=True)
     internal_notes = models.TextField(

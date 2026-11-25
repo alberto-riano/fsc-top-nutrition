@@ -35,7 +35,7 @@ class ClientForm(forms.ModelForm):
     class Meta:
         model = ClientProfile
         fields = [
-            'profile_type', 'start_date', 'goal', 'active',
+            'profile_type', 'sex', 'start_date', 'goal', 'active',
             'birth_date', 'position', 'guardian_name', 'guardian_phone',
             'internal_notes',
         ]

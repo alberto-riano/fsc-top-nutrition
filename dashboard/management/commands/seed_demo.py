@@ -142,7 +142,7 @@ class Command(BaseCommand):
 
     # --------------------------------------------------------------- clientes
     def _completo(self):
-        c = self._client('ana', 'Ana', 'García', '600111222', 'completo', legacy_email='ana@demo.com',
+        c = self._client('ana', 'Ana', 'García', '600111222', 'completo', sex='mujer', legacy_email='ana@demo.com',
                          goal='Perder grasa y ganar fuerza en tren inferior.')
         self._bono_with_sessions(c, 'individual', 10, 8)
         # 6 meses de composición corporal
@@ -240,7 +240,7 @@ class Command(BaseCommand):
             nutrition.pdf.save('plan-alimentacion-ana.pdf', ContentFile(pdf_bytes), save=True)
 
     def _basico(self):
-        c = self._client('luis', 'Luis', 'Martín', '600333444', 'basico', legacy_email='luis@demo.com',
+        c = self._client('luis', 'Luis', 'Martín', '600333444', 'basico', sex='hombre', legacy_email='luis@demo.com',
                          goal='Mantenerse activo y controlar el peso.')
         self._bono_with_sessions(c, 'grupo', 20, 19)  # queda 1 -> aviso
         if not c.body_measurements.exists():
@@ -254,7 +254,7 @@ class Command(BaseCommand):
                 w -= random.uniform(0.3, 0.8); fat -= random.uniform(0.2, 0.6)
 
     def _futbolista(self):
-        c = self._client('marco', 'Marco', 'Ruiz', '600555666', 'futbolista', legacy_email='marco@demo.com',
+        c = self._client('marco', 'Marco', 'Ruiz', '600555666', 'futbolista', sex='hombre', legacy_email='marco@demo.com',
                          goal='Mejorar velocidad y potencia de salto.',
                          birth_date=date.today() - timedelta(days=365 * 13),
                          position='Centrocampista',
@@ -279,7 +279,7 @@ class Command(BaseCommand):
                 jv += random.uniform(0.01, 0.04)
 
     def _alberto_azul(self):
-        c = self._client('alberto', 'Alberto', 'Azul', '600123123', 'completo', legacy_email='alberto@demo.com',
+        c = self._client('alberto', 'Alberto', 'Azul', '600123123', 'completo', sex='hombre', legacy_email='alberto@demo.com',
                          goal='Ganar masa muscular y fuerza en press banca.')
         self._bono_with_sessions(c, 'individual', 15, 6)
         if not c.body_measurements.exists():

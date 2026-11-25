@@ -3,11 +3,11 @@
  * Se usa como factoría de x-data: x-data="traCoachBodyMapEditor('<id del json_script>')"
  *
  * Datos esperados en el <script type="application/json" id="...">:
- *   { neck_cm: 38.5, chest_cm: 96, ... } (o null si no hay medición anterior)
+ *   { chest_cm: 96, waist_cm: 80, ... } (o null si no hay medición anterior)
  */
 (function () {
   const FIELDS = [
-    'neck_cm', 'chest_cm', 'waist_cm', 'hip_cm',
+    'chest_cm', 'waist_cm', 'hip_cm',
     'arm_l_cm', 'arm_r_cm', 'thigh_l_cm', 'thigh_r_cm', 'calf_l_cm', 'calf_r_cm',
   ];
 
