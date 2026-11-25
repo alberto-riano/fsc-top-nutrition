@@ -24,6 +24,9 @@ urlpatterns = [
     # Entrenador
     path('trainer/clients/', views.TrainerClientListView.as_view(), name='trainer-clients'),
     path('trainer/clients/<uuid:client_pk>/', views.TrainerClientDetailView.as_view(), name='trainer-client-detail'),
+    path('trainer/clients/<uuid:client_pk>/invite/', views.TrainerClientInviteView.as_view(), name='trainer-client-invite'),
+    path('trainer/usernames/check/', views.TrainerUsernameCheckView.as_view(), name='trainer-username-check'),
+    path('trainer/catalog/', views.TrainerCatalogView.as_view(), name='trainer-catalog'),
     path('trainer/clients/<uuid:client_pk>/bonos/', views.TrainerBonoListView.as_view(), name='trainer-bonos'),
     path('trainer/clients/<uuid:client_pk>/sessions/mark/', views.TrainerMarkSessionView.as_view(), name='trainer-mark-session'),
     path('trainer/clients/<uuid:client_pk>/metrics/body/', views.TrainerBodyMeasurementListView.as_view(), name='trainer-body-measurements'),

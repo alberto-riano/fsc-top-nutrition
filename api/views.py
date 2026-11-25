@@ -10,7 +10,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from bonos.models import Bono
 from clients.models import ClientProfile
-from metrics.models import BodyMeasurement, CircumferenceMeasurement, EnduranceTest, StrengthPR
+from clients.services import build_invite, suggest_username
+from metrics.models import (
+    BodyMeasurement, CircumferenceMeasurement, EnduranceTest, EnduranceTestType, Exercise, StrengthPR,
+)
 from plans.models import Plan, Product
 
 from .permissions import ClientProfileMixin, IsTrainer, TrainerClientMixin
@@ -23,6 +26,14 @@ from .serializers import (
     ClientSexSerializer,
     DeviceTokenSerializer,
     EnduranceTestSerializer,
+    EnduranceTestTypeSerializer,
+    ExerciseSerializer,
+    TrainerBonoReadSerializer,
+    TrainerBonoSerializer,
+    TrainerClientCreateSerializer,
+    TrainerEnduranceTestCreateSerializer,
+    TrainerStrengthPRCreateSerializer,
+    one_rep_max,
     MarkSessionSerializer,
     PlanSerializer,
     ProductSerializer,
@@ -135,10 +146,23 @@ class DeviceTokenRegisterView(generics.CreateAPIView):
 
 # -- Entrenador ---------------------------------------------------------------
 
-class TrainerClientListView(generics.ListAPIView):
+class TrainerClientListView(generics.ListCreateAPIView):
+    """Clientes del entrenador. POST da de alta uno y devuelve su invitación."""
+
     permission_classes = [IsTrainer]
     serializer_class = ClientListItemSerializer
-    queryset = ClientProfile.objects.select_related('user').all()
+    queryset = ClientProfile.objects.select_related('user').prefetch_related('bonos__sessions')
+
+    def get_serializer_class(self):
+        return TrainerClientCreateSerializer if self.request.method == 'POST' else ClientListItemSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = TrainerClientCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        profile = serializer.save()
+        data = ClientProfileSerializer(profile, context={'request': request}).data
+        data['invite'] = None if profile.user.has_usable_password() else build_invite(request, profile.user)
+        return Response(data, status=status.HTTP_201_CREATED)
 
 
 class TrainerClientDetailView(TrainerClientMixin, generics.RetrieveUpdateAPIView):
@@ -159,12 +183,23 @@ class TrainerClientDetailView(TrainerClientMixin, generics.RetrieveUpdateAPIView
         return self.get_client()
 
 
-class TrainerBonoListView(TrainerClientMixin, generics.ListAPIView):
+class TrainerBonoListView(TrainerClientMixin, generics.ListCreateAPIView):
     permission_classes = [IsTrainer]
-    serializer_class = BonoSerializer
+    serializer_class = TrainerBonoReadSerializer
 
     def get_queryset(self):
         return Bono.objects.filter(client=self.get_client()).prefetch_related('sessions')
+
+    def create(self, request, *args, **kwargs):
+        client = self.get_client()
+        serializer = TrainerBonoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        bono = serializer.save(client=client)
+        return Response({
+            'bono': TrainerBonoReadSerializer(bono).data,
+            'sessions_left': client.sessions_left,
+            'queued_sessions': client.queued_sessions,
+        }, status=status.HTTP_201_CREATED)
 
 
 class TrainerBodyMeasurementListView(TrainerClientMixin, generics.ListCreateAPIView):
@@ -189,20 +224,46 @@ class TrainerCircumferenceListCreateView(TrainerClientMixin, generics.ListCreate
         serializer.save(client=self.get_client())
 
 
-class TrainerStrengthPRListView(TrainerClientMixin, generics.ListAPIView):
+class TrainerStrengthPRListView(TrainerClientMixin, generics.ListCreateAPIView):
     permission_classes = [IsTrainer]
     serializer_class = StrengthPRSerializer
 
     def get_queryset(self):
         return StrengthPR.objects.filter(client=self.get_client()).select_related('exercise')
 
+    def create(self, request, *args, **kwargs):
+        client = self.get_client()
+        serializer = TrainerStrengthPRCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        pr = serializer.save(client=client)
+        previous = StrengthPR.objects.filter(client=client, exercise=pr.exercise).exclude(pk=pr.pk)
+        best = max((one_rep_max(p.weight_kg, p.reps) for p in previous), default=None)
+        data = StrengthPRSerializer(pr).data
+        data['is_first'] = best is None
+        data['is_record'] = best is not None and one_rep_max(pr.weight_kg, pr.reps) > best + 0.01
+        return Response(data, status=status.HTTP_201_CREATED)
 
-class TrainerEnduranceTestListView(TrainerClientMixin, generics.ListAPIView):
+
+class TrainerEnduranceTestListView(TrainerClientMixin, generics.ListCreateAPIView):
     permission_classes = [IsTrainer]
     serializer_class = EnduranceTestSerializer
 
     def get_queryset(self):
         return EnduranceTest.objects.filter(client=self.get_client()).select_related('test_type')
+
+    def create(self, request, *args, **kwargs):
+        client = self.get_client()
+        serializer = TrainerEnduranceTestCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        test = serializer.save(client=client)
+        values = list(EnduranceTest.objects.filter(client=client, test_type=test.test_type)
+                      .exclude(pk=test.pk).values_list('value', flat=True))
+        lower = test.test_type.lower_is_better
+        best = (min(values) if lower else max(values)) if values else None
+        data = EnduranceTestSerializer(test).data
+        data['is_first'] = best is None
+        data['is_record'] = best is not None and (test.value < best if lower else test.value > best)
+        return Response(data, status=status.HTTP_201_CREATED)
 
 
 class TrainerMarkSessionView(TrainerClientMixin, APIView):
@@ -217,7 +278,7 @@ class TrainerMarkSessionView(TrainerClientMixin, APIView):
         session = serializer.save()
         bono = session.bono
         return Response({
-            'sessions_left': bono.sessions_left,
+            'sessions_left': client.sessions_left,
             'bono_status': bono.status,
         }, status=status.HTTP_201_CREATED)
 
@@ -268,3 +329,45 @@ class TrainerProductDetailView(generics.RetrieveUpdateDestroyAPIView):
             return Response({'archived': True}, status=status.HTTP_200_OK)
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TrainerClientInviteView(TrainerClientMixin, APIView):
+    """
+    Enlace para que el cliente ponga su contraseña, con el mensaje listo para
+    WhatsApp. Sirve para la primera vez y para quien la ha olvidado.
+    """
+
+    permission_classes = [IsTrainer]
+
+    def post(self, request, client_pk):
+        client = self.get_client()
+        data = build_invite(request, client.user)
+        data['first_name'] = client.user.first_name
+        data['full_name'] = client.full_name
+        data['access_pending'] = not client.user.is_active or not client.user.has_usable_password()
+        return Response(data)
+
+
+class TrainerUsernameCheckView(APIView):
+    """¿Está libre este usuario? Si no, propone el siguiente libre."""
+
+    permission_classes = [IsTrainer]
+
+    def get(self, request):
+        username = (request.query_params.get('username') or '').strip().lower()
+        if not username:
+            return Response({'available': False, 'suggestion': ''})
+        suggestion = suggest_username(username)
+        return Response({'available': suggestion == username, 'suggestion': suggestion})
+
+
+class TrainerCatalogView(APIView):
+    """Ejercicios de fuerza y tipos de test, para registrar marcas."""
+
+    permission_classes = [IsTrainer]
+
+    def get(self, request):
+        return Response({
+            'exercises': ExerciseSerializer(Exercise.objects.all(), many=True).data,
+            'test_types': EnduranceTestTypeSerializer(EnduranceTestType.objects.all(), many=True).data,
+        })

@@ -205,6 +205,9 @@ EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send'
 
 # Branding del producto (centralizado para reutilizar el repo en otros verticales)
 SITE_NAME = os.environ.get('SITE_NAME', 'TraCoach')
+# Enlace para descargar la app (App Store / TestFlight). Si está, se incluye en
+# el mensaje de invitación que el entrenador manda por WhatsApp.
+APP_DOWNLOAD_URL = os.environ.get('APP_DOWNLOAD_URL', '')
 SITE_TAGLINE = os.environ.get('SITE_TAGLINE', 'FSC Top Nutrition')
 APP_BUILD = os.environ.get('APP_BUILD', '')
 SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL', 'info@fsctopnutrition.com')

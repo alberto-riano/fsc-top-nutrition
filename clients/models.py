@@ -111,23 +111,37 @@ class ClientProfile(models.Model):
 
     # -- Bonos ---------------------------------------------------------------
     @property
+    def usable_bonos(self):
+        """
+        Bonos con sesiones disponibles y sin caducar, del más antiguo al más
+        nuevo: las sesiones se gastan de uno en uno, en ese orden. Si se
+        renueva antes de agotar el bono, el nuevo queda «en cola».
+        """
+        return [b for b in self.bonos.filter(archived=False).order_by('purchase_date', 'created_at')
+                if b.status == 'activo']
+
+    @property
     def active_bono(self):
-        """Bono con sesiones disponibles y no caducado, si lo hay."""
-        for bono in self.bonos.filter(archived=False).order_by('purchase_date', 'created_at'):
-            if bono.status == 'activo':
-                return bono
-        return None
+        """El bono del que se descuenta la próxima sesión, si lo hay."""
+        bonos = self.usable_bonos
+        return bonos[0] if bonos else None
 
     @property
     def sessions_left(self):
-        bono = self.active_bono
-        return bono.sessions_left if bono else 0
+        """Sesiones que le quedan en total, sumando los bonos en cola."""
+        return sum(b.sessions_left for b in self.usable_bonos)
+
+    @property
+    def queued_sessions(self):
+        """Sesiones de los bonos que esperan a que se agote el activo."""
+        bonos = self.usable_bonos
+        return sum(b.sessions_left for b in bonos[1:])
 
     @property
     def low_sessions_alert(self):
-        """True si al cliente le quedan pocas (<=2) sesiones en su bono activo."""
-        bono = self.active_bono
-        return bool(bono) and bono.sessions_left <= 2
+        """True si le quedan pocas (<=2) sesiones contando los bonos en cola."""
+        bonos = self.usable_bonos
+        return bool(bonos) and sum(b.sessions_left for b in bonos) <= 2
 
 
 RATING_CHOICES = [(i, str(i)) for i in range(1, 6)]

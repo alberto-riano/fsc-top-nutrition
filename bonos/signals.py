@@ -18,6 +18,7 @@ def notify_low_sessions(sender, instance, created, **kwargs):
     send_push_to_user(
         client.user,
         title='Pocas sesiones restantes',
-        body=f'Te quedan {bono.sessions_left} sesiones en tu bono.',
+        body=(f'Te queda {client.sessions_left} sesión en tu bono.' if client.sessions_left == 1
+              else f'Te quedan {client.sessions_left} sesiones en tu bono.'),
         data={'type': 'low_sessions', 'bono_id': str(bono.id)},
     )
