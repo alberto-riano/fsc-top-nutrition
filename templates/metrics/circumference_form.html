@@ -8,7 +8,7 @@
 
     {% if last_values %}{{ last_values|json_script:"cm-last-values" }}{% endif %}
 
-    <form method="post" class="space-y-5" x-data="topTrackBodyMapEditor('cm-last-values')">
+    <form method="post" class="space-y-5" x-data="traCoachBodyMapEditor('cm-last-values')">
         {% csrf_token %}
 
         <div class="card p-5">
@@ -63,5 +63,5 @@
 </div>
 {% endblock %}
 {% block extra_js %}
-<script src="{% static 'js/toptrack-bodymap.js' %}"></script>
+<script src="{% static 'js/tracoach-bodymap.js' %}"></script>
 {% endblock %}

@@ -10,6 +10,15 @@ BACKUP_DIR="$DEPLOY_STATE_DIR/backups"
 
 cd "$PROJECT_DIR"
 source venv/bin/activate
+
+# El servicio se llama «tracoach». Las instalaciones de antes del cambio de
+# marca aún tienen «toptrack-app» hasta que se lance scripts/rename-to-tracoach.sh.
+SERVICE_NAME="tracoach"
+if ! systemctl list-unit-files "${SERVICE_NAME}.service" --no-legend | grep -q . \
+   && systemctl list-unit-files toptrack-app.service --no-legend | grep -q .; then
+    SERVICE_NAME="toptrack-app"
+    echo "AVISO: instalación con los nombres antiguos. Lanza una vez: bash scripts/rename-to-tracoach.sh"
+fi
 mkdir -p "$BACKUP_DIR"
 
 # El propio deploy regenera static/css/app.css con Tailwind; si un deploy anterior
@@ -45,7 +54,7 @@ if [ -n "${DATABASE_URL:-}" ]; then
     PGPASSWORD="${DB_PASSWORD:-}" pg_dump \
         --format=custom --file="$BACKUP_FILE" \
         --host="${DB_HOST:-localhost}" --port="${DB_PORT:-5432}" \
-        --username="${DB_USER:-toptrack}" "${DB_NAME:-toptrack}"
+        --username="${DB_USER:-tracoach}" "${DB_NAME:-tracoach}"
     test -s "$BACKUP_FILE"
     echo "$BACKUP_FILE" > "$DEPLOY_STATE_DIR/latest_backup"
 fi
@@ -64,7 +73,7 @@ python manage.py check --deploy
 python manage.py makemigrations --check --dry-run
 python manage.py migrate
 python manage.py collectstatic --no-input
-sudo systemctl restart toptrack-app
+sudo systemctl restart "$SERVICE_NAME"
 
 HTTP_STATUS="000"
 for attempt in {1..30}; do
@@ -78,9 +87,9 @@ if [ "$HTTP_STATUS" != "200" ]; then
     echo "ERROR: health check fallido (HTTP ${HTTP_STATUS:-sin respuesta})."
     echo "Commit anterior: $PREVIOUS_SHA"
     echo "Backup más reciente: ${BACKUP_FILE:-no creado}"
-    sudo systemctl status toptrack-app --no-pager --lines=20 || true
+    sudo systemctl status "$SERVICE_NAME" --no-pager --lines=20 || true
     exit 1
 fi
 
-sudo systemctl status toptrack-app --no-pager --lines=5
+sudo systemctl status "$SERVICE_NAME" --no-pager --lines=5
 echo "==> Despliegue correcto: ${DEPLOY_SHA:0:12}"

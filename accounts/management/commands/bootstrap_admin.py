@@ -11,15 +11,15 @@ from accounts.models import User
 
 
 class Command(BaseCommand):
-    help = "Crea el entrenador/admin (superadmin) de TopTrack. Idempotente."
+    help = "Crea el entrenador/admin (superadmin) de TraCoach. Idempotente."
 
     def add_arguments(self, parser):
         parser.add_argument('--username', default=os.environ.get('ADMIN_USERNAME', ''))
         parser.add_argument('--password', default=os.environ.get('ADMIN_PASSWORD', 'admin'))
-        parser.add_argument('--email', default=os.environ.get('ADMIN_EMAIL', 'admin@toptrack.local'))
+        parser.add_argument('--email', default=os.environ.get('ADMIN_EMAIL', 'admin@tracoach.local'))
 
     def handle(self, *args, **opts):
-        email = (opts['email'] or '').strip().lower() or 'admin@toptrack.local'
+        email = (opts['email'] or '').strip().lower() or 'admin@tracoach.local'
         # El entrenador entra por EMAIL; el username = email para no confundir.
         username = (opts['username'] or '').strip() or email
 

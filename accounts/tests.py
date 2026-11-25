@@ -14,8 +14,8 @@ class EmailLoginTests(TestCase):
 
     def test_login_by_email_case_insensitive(self):
         User.objects.create_user(
-            username='u2', email='trainer@toptrack.com', password='secret123', role='admin')
-        ok = self.client.login(username='TRAINER@toptrack.com', password='secret123')
+            username='u2', email='trainer@tracoach.com', password='secret123', role='admin')
+        ok = self.client.login(username='TRAINER@tracoach.com', password='secret123')
         self.assertTrue(ok)
 
     def test_role_helpers(self):

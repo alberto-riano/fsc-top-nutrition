@@ -66,15 +66,15 @@ class Command(BaseCommand):
         self._alberto_azul()
 
         self.stdout.write(self.style.SUCCESS(
-            'Demo creada. Entrena con: admin@toptrack.local / admin (o el que definiste), '
+            'Demo creada. Entrena con: admin@tracoach.local / admin (o el que definiste), '
             'o con admin / admin para pruebas rápidas. '
             'Clientes de ejemplo: ana/ana, luis/luis, marco/marco, alberto/alberto.'))
 
     # ------------------------------------------------------------------ utils
     def _trainer(self):
         admin, created = User.objects.get_or_create(
-            email='admin@toptrack.local',
-            defaults={'username': 'admin@toptrack.local', 'role': 'admin',
+            email='admin@tracoach.local',
+            defaults={'username': 'admin@tracoach.local', 'role': 'admin',
                       'first_name': 'Entrenador', 'is_staff': True, 'is_superuser': True})
         if created:
             admin.set_password('admin')

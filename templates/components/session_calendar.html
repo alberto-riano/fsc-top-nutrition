@@ -3,7 +3,7 @@ Calendario mensual de asistencia a sesiones. Variables requeridas:
   - calendar_id: id único (se usa para el <script> de datos y el x-data)
   - sessions_calendar: lista de dicts (ver bonos/services.py:sessions_calendar_data)
 {% endcomment %}
-<div class="card p-5" x-data="topTrackCalendar('{{ calendar_id }}')">
+<div class="card p-5" x-data="traCoachCalendar('{{ calendar_id }}')">
     <div class="flex items-center justify-between mb-4">
         <h3 class="section-title">Calendario de sesiones</h3>
         <div class="flex items-center gap-1">

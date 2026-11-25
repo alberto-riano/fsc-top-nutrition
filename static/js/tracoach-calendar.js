@@ -1,6 +1,6 @@
 /*
  * Calendario mensual de asistencia a sesiones, sin dependencias externas.
- * Se usa como factoría de x-data de Alpine: x-data="topTrackCalendar('<id del json_script>')"
+ * Se usa como factoría de x-data de Alpine: x-data="traCoachCalendar('<id del json_script>')"
  *
  * Datos esperados en el <script type="application/json" id="...">:
  *   [{ date: 'YYYY-MM-DD', time: 'HH:MM', type: 'Individual', notes: '...' }, ...]
@@ -18,7 +18,7 @@
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
 
-  function topTrackCalendar(dataId) {
+  function traCoachCalendar(dataId) {
     const sessions = readData(dataId);
     const byDay = {};
     sessions.forEach(s => { (byDay[s.date] = byDay[s.date] || []).push(s); });
@@ -74,5 +74,5 @@
     };
   }
 
-  window.topTrackCalendar = topTrackCalendar;
+  window.traCoachCalendar = traCoachCalendar;
 })();

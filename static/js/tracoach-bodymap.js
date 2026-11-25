@@ -1,6 +1,6 @@
 /*
  * Estado Alpine del mapa corporal editable (formulario de perímetros).
- * Se usa como factoría de x-data: x-data="topTrackBodyMapEditor('<id del json_script>')"
+ * Se usa como factoría de x-data: x-data="traCoachBodyMapEditor('<id del json_script>')"
  *
  * Datos esperados en el <script type="application/json" id="...">:
  *   { neck_cm: 38.5, chest_cm: 96, ... } (o null si no hay medición anterior)
@@ -23,7 +23,7 @@
     return v;
   }
 
-  window.topTrackBodyMapEditor = function (lastValuesId) {
+  window.traCoachBodyMapEditor = function (lastValuesId) {
     const last = readJSON(lastValuesId) || {};
     return {
       values: emptyValues(),

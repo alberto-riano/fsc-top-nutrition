@@ -48,12 +48,12 @@ pip install -r requirements.txt
 
 # Sin DATABASE_URL en el entorno usa SQLite automáticamente.
 python manage.py migrate
-python manage.py bootstrap_admin           # crea admin@toptrack.local / admin
+python manage.py bootstrap_admin           # crea admin@tracoach.local / admin
 python manage.py seed_demo                  # (opcional) 3 clientes de ejemplo
 python manage.py runserver
 ```
 
-Abre <http://127.0.0.1:8000/> e inicia sesión con `admin@toptrack.local / admin`.
+Abre <http://127.0.0.1:8000/> e inicia sesión con `admin@tracoach.local / admin`.
 Clientes de demo: `ana@demo.com`, `luis@demo.com`, `marco@demo.com` (contraseña `demo1234`).
 
 ### Estilos (Tailwind)
@@ -71,8 +71,8 @@ npm run build:css        # o npm run watch:css durante el desarrollo
 En una EC2 Ubuntu 22.04/24.04 vacía (puertos 22/80/443 abiertos):
 
 ```bash
-git clone <repo> topnutrition
-cd topnutrition
+git clone <repo> tracoach
+cd tracoach
 bash setup.sh
 ```
 
@@ -89,6 +89,23 @@ Para actualizar tras un `git push`, en la EC2:
 
 Hace `git pull --ff-only`, backup `pg_dump`, migraciones, `collectstatic`,
 reinicio del servicio y health check.
+
+### Instalaciones de antes del cambio de marca
+
+Las EC2 montadas antes de TraCoach tienen la carpeta `~/topnutrition`, el
+servicio `toptrack-app` y la base de datos `toptrack`. Para pasarlas a
+`~/tracoach`, `tracoach` y `tracoach`, una sola vez:
+
+```bash
+cd ~/topnutrition && git pull && bash scripts/rename-to-tracoach.sh
+cd ~/tracoach
+```
+
+Hace backup de la BD, la renombra (y repone la contraseña del usuario), mueve
+la carpeta, reinstala el venv, crea el servicio y la configuración de nginx
+nuevos (copiando la actual, con el HTTPS de certbot) y comprueba que la web
+responde. Mientras no se lance, `deploy.sh` sigue funcionando con los nombres
+antiguos y avisa.
 
 ## Tests
 

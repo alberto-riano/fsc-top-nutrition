@@ -122,8 +122,8 @@ if DATABASE_URL:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DB_NAME', 'toptrack'),
-            'USER': os.environ.get('DB_USER', 'toptrack'),
+            'NAME': os.environ.get('DB_NAME', 'tracoach'),
+            'USER': os.environ.get('DB_USER', 'tracoach'),
             'PASSWORD': os.environ.get('DB_PASSWORD', ''),
             'HOST': os.environ.get('DB_HOST', 'localhost'),
             'PORT': os.environ.get('DB_PORT', '5432'),

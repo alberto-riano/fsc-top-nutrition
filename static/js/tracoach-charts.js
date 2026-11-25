@@ -1,10 +1,10 @@
 /*
- * Gráficas de línea de TopTrack. Render propio sobre <canvas> (sin dependencias
+ * Gráficas de línea de TraCoach. Render propio sobre <canvas> (sin dependencias
  * externas) para que la app sea 100% self-hosted y funcione sin CDN.
  *
  * API:
- *   TopTrackCharts.renderBody(canvasId, dataId)   // peso + % grasa + % músculo
- *   TopTrackCharts.renderMulti(canvasId, dataId)  // varias series (fuerza/tests)
+ *   TraCoachCharts.renderBody(canvasId, dataId)   // peso + % grasa + % músculo
+ *   TraCoachCharts.renderMulti(canvasId, dataId)  // varias series (fuerza/tests)
  * Los datos se leen de un <script type="application/json" id="dataId">.
  *
  * Incluye relleno degradado bajo la serie principal, el último punto
@@ -273,6 +273,6 @@
     });
   }
 
-  window.TopTrackCharts = { renderBody: renderBody, renderMulti: renderMulti };
+  window.TraCoachCharts = { renderBody: renderBody, renderMulti: renderMulti };
 })();
 

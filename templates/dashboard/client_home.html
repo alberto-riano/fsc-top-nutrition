@@ -93,10 +93,10 @@
 
 {% block extra_js %}
 {% if client.shows_body_composition %}
-<script src="{% static 'js/toptrack-charts.js' %}"></script>
+<script src="{% static 'js/tracoach-charts.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        if (window.TopTrackCharts) TopTrackCharts.renderBody('chart-body', 'data-body');
+        if (window.TraCoachCharts) TraCoachCharts.renderBody('chart-body', 'data-body');
     });
 </script>
 {% endif %}

@@ -105,14 +105,14 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/toptrack-charts.js' %}"></script>
+<script src="{% static 'js/tracoach-charts.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        if (!window.TopTrackCharts) return;
-        TopTrackCharts.renderBody('chart-body', 'data-body');
-        TopTrackCharts.renderMulti('chart-strength', 'data-strength');
-        TopTrackCharts.renderMulti('chart-endurance', 'data-endurance');
-        TopTrackCharts.renderMulti('chart-cm', 'data-cm');
+        if (!window.TraCoachCharts) return;
+        TraCoachCharts.renderBody('chart-body', 'data-body');
+        TraCoachCharts.renderMulti('chart-strength', 'data-strength');
+        TraCoachCharts.renderMulti('chart-endurance', 'data-endurance');
+        TraCoachCharts.renderMulti('chart-cm', 'data-cm');
     });
 </script>
 {% endblock %}

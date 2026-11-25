@@ -2,8 +2,8 @@
 #
 # setup.sh — Provisión completa de TraCoach (FSC Top Nutrition) en una EC2 Ubuntu vacía.
 #
-#   1. git clone <repo> topnutrition
-#   2. cd topnutrition
+#   1. git clone <repo> tracoach
+#   2. cd tracoach
 #   3. bash setup.sh
 #
 # Instala Postgres + venv + gunicorn + nginx (+ certbot si hay dominio), crea el
@@ -25,7 +25,7 @@ title() { echo -e "\n${BOLD}$*${NC}"; }
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="$PROJECT_DIR/venv"
 ENV_FILE="$PROJECT_DIR/.env"
-SERVICE_NAME="toptrack-app"
+SERVICE_NAME="tracoach"
 SERVICE_USER="$(whoami)"
 
 if [ "$SERVICE_USER" = "root" ]; then
@@ -58,8 +58,8 @@ echo "IP pública detectada: ${PUBLIC_IP:-(no detectada)}"
 echo "Se creará el ENTRENADOR (admin). Se inicia sesión con el EMAIL (no con usuario)."
 echo
 
-read -rp "Email del entrenador (tu acceso) [admin@toptrack.local]: " ADMIN_EMAIL
-ADMIN_EMAIL="${ADMIN_EMAIL:-admin@toptrack.local}"
+read -rp "Email del entrenador (tu acceso) [admin@tracoach.local]: " ADMIN_EMAIL
+ADMIN_EMAIL="${ADMIN_EMAIL:-admin@tracoach.local}"
 read -rp "Contraseña del entrenador [admin]: " ADMIN_PASSWORD
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin}"
 read -rp "Dominio (vacío = usar solo la IP) []: " DOMAIN
@@ -150,9 +150,9 @@ SECURE_SSL_REDIRECT=${SSL_REDIRECT}
 SECURE_HSTS_SECONDS=${HSTS_SECONDS}
 
 # Base de datos PostgreSQL
-DATABASE_URL=postgres://toptrack@localhost:5432/toptrack
-DB_NAME=toptrack
-DB_USER=toptrack
+DATABASE_URL=postgres://tracoach@localhost:5432/tracoach
+DB_NAME=tracoach
+DB_USER=tracoach
 DB_PASSWORD='${DB_PASSWORD}'
 DB_HOST=localhost
 DB_PORT=5432
@@ -174,17 +174,17 @@ chmod 600 "$ENV_FILE"
 # ---------------------------------------------------------------------------
 title "Configurando PostgreSQL"
 sudo systemctl enable --now postgresql
-if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='toptrack'" | grep -q 1; then
-    sudo -u postgres psql -c "CREATE USER toptrack WITH PASSWORD '${DB_PASSWORD}';"
-    info "Usuario de BD 'toptrack' creado."
+if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='tracoach'" | grep -q 1; then
+    sudo -u postgres psql -c "CREATE USER tracoach WITH PASSWORD '${DB_PASSWORD}';"
+    info "Usuario de BD 'tracoach' creado."
 else
-    warn "El usuario de BD 'toptrack' ya existe."
+    warn "El usuario de BD 'tracoach' ya existe."
 fi
-if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='toptrack'" | grep -q 1; then
-    sudo -u postgres psql -c "CREATE DATABASE toptrack OWNER toptrack;"
-    info "Base de datos 'toptrack' creada."
+if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='tracoach'" | grep -q 1; then
+    sudo -u postgres psql -c "CREATE DATABASE tracoach OWNER tracoach;"
+    info "Base de datos 'tracoach' creada."
 else
-    warn "La base de datos 'toptrack' ya existe."
+    warn "La base de datos 'tracoach' ya existe."
 fi
 
 # ---------------------------------------------------------------------------
@@ -211,7 +211,7 @@ fi
 title "Configurando el servicio ${SERVICE_NAME} (gunicorn)"
 sudo tee "/etc/systemd/system/${SERVICE_NAME}.service" >/dev/null <<EOF
 [Unit]
-Description=TopTrack (gunicorn)
+Description=TraCoach (gunicorn)
 After=network.target postgresql.service
 
 [Service]
