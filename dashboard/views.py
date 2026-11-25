@@ -107,6 +107,6 @@ def my_plans(request):
     context = {
         'client': profile,
         'routines': list(profile.plans.filter(plan_type='rutina')),
-        'nutrition': list(profile.plans.filter(plan_type='alimentacion')),
+        'nutrition': list(profile.plans.filter(plan_type='alimentacion').prefetch_related('plan_products__product')),
     }
     return render(request, 'dashboard/my_plans.html', context)

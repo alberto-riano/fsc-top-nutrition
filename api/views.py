@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.db.models import Count
 from rest_framework import generics, status
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny
@@ -10,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from bonos.models import Bono
 from clients.models import ClientProfile
 from metrics.models import BodyMeasurement, CircumferenceMeasurement, EnduranceTest, StrengthPR
-from plans.models import Plan
+from plans.models import Plan, Product
 
 from .permissions import ClientProfileMixin, IsTrainer, TrainerClientMixin
 from .serializers import (
@@ -23,6 +24,7 @@ from .serializers import (
     EnduranceTestSerializer,
     MarkSessionSerializer,
     PlanSerializer,
+    ProductSerializer,
     StrengthPRSerializer,
     TrainerPlanSerializer,
     UserSerializer,
@@ -120,7 +122,10 @@ class PlanListView(ClientProfileMixin, generics.ListAPIView):
     serializer_class = PlanSerializer
 
     def get_queryset(self):
-        return Plan.objects.filter(client=self.get_client_profile(), archived=False)
+        return (
+            Plan.objects.filter(client=self.get_client_profile(), archived=False)
+            .prefetch_related('plan_products__product')
+        )
 
 
 class DeviceTokenRegisterView(generics.CreateAPIView):
@@ -151,12 +156,15 @@ class TrainerBonoListView(TrainerClientMixin, generics.ListAPIView):
         return Bono.objects.filter(client=self.get_client()).prefetch_related('sessions')
 
 
-class TrainerBodyMeasurementListView(TrainerClientMixin, generics.ListAPIView):
+class TrainerBodyMeasurementListView(TrainerClientMixin, generics.ListCreateAPIView):
     permission_classes = [IsTrainer]
     serializer_class = BodyMeasurementSerializer
 
     def get_queryset(self):
         return BodyMeasurement.objects.filter(client=self.get_client())
+
+    def perform_create(self, serializer):
+        serializer.save(client=self.get_client())
 
 
 class TrainerCircumferenceListCreateView(TrainerClientMixin, generics.ListCreateAPIView):
@@ -209,9 +217,43 @@ class TrainerPlanListCreateView(TrainerClientMixin, generics.ListCreateAPIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
-        return Plan.objects.filter(client=self.get_client())
+        return Plan.objects.filter(client=self.get_client()).prefetch_related('plan_products__product')
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['client'] = self.get_client()
         return context
+
+
+class TrainerProductListCreateView(generics.ListCreateAPIView):
+    """Catálogo de productos. `?all=1` incluye los archivados."""
+
+    permission_classes = [IsTrainer]
+    serializer_class = ProductSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        qs = Product.objects.annotate(plans_count=Count('plan_products'))
+        if self.request.query_params.get('all') != '1':
+            qs = qs.filter(active=True)
+        return qs
+
+
+class TrainerProductDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Editar o quitar un producto. Si ya está en algún plan no se borra: se
+    archiva, para que los clientes que lo tienen lo sigan viendo.
+    """
+
+    permission_classes = [IsTrainer]
+    serializer_class = ProductSerializer
+    queryset = Product.objects.annotate(plans_count=Count('plan_products'))
+
+    def destroy(self, request, *args, **kwargs):
+        product = self.get_object()
+        if product.plan_products.exists():
+            product.active = False
+            product.save(update_fields=['active', 'updated_at'])
+            return Response({'archived': True}, status=status.HTTP_200_OK)
+        product.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

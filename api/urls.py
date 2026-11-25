@@ -30,5 +30,7 @@ urlpatterns = [
     path('trainer/clients/<uuid:client_pk>/metrics/circumference/', views.TrainerCircumferenceListCreateView.as_view(), name='trainer-circumference'),
     path('trainer/clients/<uuid:client_pk>/metrics/strength/', views.TrainerStrengthPRListView.as_view(), name='trainer-strength-prs'),
     path('trainer/clients/<uuid:client_pk>/metrics/endurance/', views.TrainerEnduranceTestListView.as_view(), name='trainer-endurance-tests'),
+    path('trainer/products/', views.TrainerProductListCreateView.as_view(), name='trainer-products'),
+    path('trainer/products/<uuid:pk>/', views.TrainerProductDetailView.as_view(), name='trainer-product-detail'),
     path('trainer/clients/<uuid:client_pk>/plans/', views.TrainerPlanListCreateView.as_view(), name='trainer-plans'),
 ]
