@@ -211,6 +211,10 @@ APP_DOWNLOAD_URL = os.environ.get('APP_DOWNLOAD_URL', '')
 SITE_TAGLINE = os.environ.get('SITE_TAGLINE', 'FSC Top Nutrition')
 APP_BUILD = os.environ.get('APP_BUILD', '')
 SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL', 'info@fsctopnutrition.com')
+# Responsable del tratamiento (política de privacidad): nombre legal o razón social
+# con su NIF si se quiere, y dirección del centro.
+SITE_OWNER = os.environ.get('SITE_OWNER', '') or SITE_TAGLINE
+SITE_ADDRESS = os.environ.get('SITE_ADDRESS', 'C. de la Libertad, 59, 28100 Alcobendas, Madrid')
 
 # Email (reset de contraseña, invitaciones). Se activa el backend SMTP solo si
 # hay endpoint Y credenciales; si no, cae al backend de consola (útil en local).

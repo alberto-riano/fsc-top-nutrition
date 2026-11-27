@@ -5,16 +5,76 @@
     <a href="{% url 'accounts:login' %}" class="text-sm text-brand-600 hover:text-brand-600">&larr; Volver</a>
     <h1 class="mt-4 text-3xl font-extrabold text-gray-900">Política de privacidad</h1>
     <p class="mt-1 text-sm text-gray-500">Actualizada en {{ updated }}.</p>
-    <div class="mt-6 space-y-4 text-sm leading-relaxed">
-        <p>{{ SITE_NAME }} ({{ SITE_TAGLINE }}) trata los datos de sus clientes con la única
-        finalidad de gestionar su entrenamiento personal: sesiones, bonos, métricas de
-        progreso y planes de entrenamiento y alimentación.</p>
-        <p>Los datos se almacenan de forma segura y no se ceden a terceros. Cada cliente
-        solo puede acceder a su propia información. Puedes ejercer tus derechos de acceso,
-        rectificación y supresión escribiendo a {{ SUPPORT_EMAIL }}.</p>
-        <p>En el caso de menores de edad (perfil de futbolista), el tratamiento se realiza
-        con el consentimiento de su tutor legal, cuyos datos de contacto se conservan a tal
-        efecto.</p>
+
+    <div class="mt-6 space-y-6 text-sm leading-relaxed">
+        <p>{{ SITE_NAME }} es la app con la que {{ SITE_TAGLINE }} lleva el seguimiento de
+        sus clientes de entrenamiento personal. Aquí te contamos qué datos tratamos, para
+        qué y cómo puedes borrarlos.</p>
+
+        <section>
+            <h2 class="text-base font-bold text-gray-900">Quién es el responsable</h2>
+            <p class="mt-2">{{ SITE_OWNER }}{% if SITE_ADDRESS %}, {{ SITE_ADDRESS }}{% endif %}.
+            Contacto: <a class="text-brand-600" href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
+        </section>
+
+        <section>
+            <h2 class="text-base font-bold text-gray-900">Qué datos tratamos</h2>
+            <ul class="mt-2 list-disc pl-5 space-y-1">
+                <li><strong>Identificación y contacto:</strong> nombre, apellidos, usuario,
+                teléfono y fecha de nacimiento. En menores (perfil de futbolista), también el
+                nombre y teléfono de su tutor legal.</li>
+                <li><strong>Salud y forma física:</strong> peso, porcentajes de grasa, músculo y
+                agua, perímetros corporales, marcas de fuerza, tests físicos y tu objetivo.</li>
+                <li><strong>Servicio:</strong> bonos, sesiones realizadas y planes de
+                entrenamiento y alimentación.</li>
+                <li><strong>Dispositivo:</strong> un identificador para enviarte avisos, solo si
+                los permites.</li>
+            </ul>
+            <p class="mt-2">Estos datos los introduce tu entrenador en la app, normalmente
+            contigo delante. No usamos analítica de terceros, publicidad ni seguimiento entre
+            apps.</p>
+        </section>
+
+        <section>
+            <h2 class="text-base font-bold text-gray-900">Para qué los usamos</h2>
+            <p class="mt-2">Solo para prestarte el servicio: llevar tus sesiones y bonos,
+            enseñarte tu evolución, darte tus planes y avisarte cuando te queden pocas
+            sesiones o tengas un plan nuevo. La base legal es la relación que tienes con el
+            centro y, para los datos de salud, tu consentimiento expreso (o el de tu tutor),
+            que puedes retirar en cualquier momento.</p>
+        </section>
+
+        <section>
+            <h2 class="text-base font-bold text-gray-900">Con quién se comparten</h2>
+            <p class="mt-2">No vendemos ni cedemos tus datos. Solo los tratan, por cuenta del
+            centro, los proveedores imprescindibles para que la app funcione: el alojamiento
+            de los servidores (Amazon Web Services) y el envío de avisos al móvil (Expo y
+            Apple Push Notification Service). Cada cliente solo puede ver su propia
+            información.</p>
+        </section>
+
+        <section>
+            <h2 class="text-base font-bold text-gray-900">Cuánto tiempo se guardan</h2>
+            <p class="mt-2">Mientras tengas cuenta en {{ SITE_NAME }}. Cuando la eliminas, se
+            borran de inmediato y para siempre tu cuenta y todos tus datos: medidas, marcas,
+            planes, bonos y sesiones.</p>
+        </section>
+
+        <section>
+            <h2 class="text-base font-bold text-gray-900">Cómo eliminar tu cuenta</h2>
+            <p class="mt-2">Desde la propia app: <strong>Perfil &rarr; Eliminar mi
+            cuenta</strong>. También puedes pedírselo a tu entrenador o escribir a
+            <a class="text-brand-600" href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
+        </section>
+
+        <section>
+            <h2 class="text-base font-bold text-gray-900">Tus derechos</h2>
+            <p class="mt-2">Puedes acceder a tus datos, rectificarlos, suprimirlos, oponerte o
+            limitar su tratamiento, pedir su portabilidad y retirar tu consentimiento
+            escribiendo a <a class="text-brand-600" href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.
+            Si crees que no los hemos atendido bien, puedes reclamar ante la Agencia Española
+            de Protección de Datos (aepd.es).</p>
+        </section>
     </div>
 </div>
 {% endblock %}

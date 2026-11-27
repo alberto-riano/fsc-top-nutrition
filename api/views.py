@@ -8,6 +8,7 @@ from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from accounts.deletion import delete_account, is_last_trainer
 from bonos.models import Bono
 from clients.models import ClientProfile
 from clients.services import build_invite, suggest_username
@@ -77,6 +78,39 @@ class MeView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class AccountDeleteView(APIView):
+    """
+    Eliminar la propia cuenta desde la app (requisito de Apple).
+
+    GET dice qué se pierde (o por qué no se puede) antes de pedir nada; POST
+    con la contraseña la borra para siempre junto con todos sus datos.
+    """
+
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'auth'
+    LAST_TRAINER = ('Eres el único entrenador del centro: si eliminas tu cuenta, nadie podrá '
+                    'gestionar a los clientes. Da de alta a otro entrenador antes desde el panel web.')
+
+    def get(self, request):
+        user = request.user
+        profile = getattr(user, 'client_profile', None)
+        blocked = is_last_trainer(user)
+        return Response({
+            'can_delete': not blocked,
+            'reason': self.LAST_TRAINER if blocked else '',
+            'sessions_left': profile.sessions_left if profile else 0,
+        })
+
+    def post(self, request):
+        user = request.user
+        if not user.check_password(request.data.get('password') or ''):
+            return Response({'password': ['La contraseña no es correcta.']}, status=status.HTTP_400_BAD_REQUEST)
+        if is_last_trainer(user):
+            return Response({'detail': self.LAST_TRAINER}, status=status.HTTP_400_BAD_REQUEST)
+        delete_account(user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class MyClientProfileView(ClientProfileMixin, generics.RetrieveAPIView):

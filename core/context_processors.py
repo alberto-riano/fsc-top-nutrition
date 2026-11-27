@@ -16,4 +16,6 @@ def branding(request):
         'APP_VERSION': VERSION,
         'APP_BUILD': getattr(settings, 'APP_BUILD', ''),
         'SUPPORT_EMAIL': getattr(settings, 'SUPPORT_EMAIL', ''),
+        'SITE_OWNER': getattr(settings, 'SITE_OWNER', ''),
+        'SITE_ADDRESS': getattr(settings, 'SITE_ADDRESS', ''),
     }

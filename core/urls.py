@@ -21,7 +21,7 @@ urlpatterns = [
 
     # Páginas legales (públicas)
     path('legal/privacidad/', TemplateView.as_view(
-        template_name='legal/privacy.html', extra_context={'updated': 'julio de 2026'}), name='privacy'),
+        template_name='legal/privacy.html', extra_context={'updated': 'noviembre de 2026'}), name='privacy'),
     path('legal/terminos/', TemplateView.as_view(
         template_name='legal/terms.html', extra_context={'updated': 'julio de 2026'}), name='terms'),
 ]

@@ -235,3 +235,86 @@ class TrainerManagementTests(TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertFalse(res.json()['access_pending'])
         self.assertIn('Ana', res.json()['message'])
+
+
+class AccountDeletionTests(TestCase):
+    """Eliminar la propia cuenta desde la app: se borra todo y de verdad."""
+
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()  # el throttle de auth no debe arrastrarse entre tests
+        self.trainer = User.objects.create_user(username='t', email='t@demo.com', password='x', role='admin')
+        self.user = User.objects.create_user(
+            username='c', email='ana', password='secreta-123', role='cliente', first_name='Ana', last_name='López')
+        self.profile = ClientProfile.objects.create(user=self.user, profile_type='completo')
+        self.api = APIClient()
+        self.api.force_authenticate(self.user)
+
+    def test_client_deletes_account_and_all_its_data(self):
+        import tempfile
+        from unittest import mock
+
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.test import override_settings
+        from django.utils import timezone
+
+        from bonos.models import Bono, Session
+
+        with tempfile.TemporaryDirectory() as media, override_settings(MEDIA_ROOT=media):
+            bono = Bono.objects.create(client=self.profile, sessions_total=10)
+            Session.objects.create(bono=bono, date=timezone.now())
+            plan = Plan.objects.create(
+                client=self.profile, plan_type=Plan.TYPE_NUTRITION, title='Plan',
+                pdf=SimpleUploadedFile('plan.pdf', b'%PDF-1.4'))
+            pdf_path = plan.pdf.path
+            BodyMeasurement.objects.create(client=self.profile, date=timezone.localdate(), weight_kg=60)
+
+            res = self.api.get('/api/v1/me/delete/')
+            self.assertEqual(res.json(), {'can_delete': True, 'reason': '', 'sessions_left': 9})
+
+            with mock.patch('accounts.deletion.send_push_to_user') as push, \
+                    self.captureOnCommitCallbacks(execute=True):
+                res = self.api.post('/api/v1/me/delete/', {'password': 'secreta-123'}, format='json')
+            self.assertEqual(res.status_code, 204, res.content)
+
+            self.assertFalse(User.objects.filter(pk=self.user.pk).exists())
+            self.assertFalse(ClientProfile.objects.exists())
+            self.assertFalse(Bono.objects.exists())
+            self.assertFalse(Session.objects.exists())
+            self.assertFalse(Plan.objects.exists())
+            self.assertFalse(BodyMeasurement.objects.exists())
+            import os
+            self.assertFalse(os.path.exists(pdf_path))
+
+            push.assert_called_once()
+            trainer, title, body = push.call_args.args
+            self.assertEqual(trainer, self.trainer)
+            self.assertIn('Ana López', body)
+            self.assertIn('quedaban 9 sesiones', body)
+
+        # Ya no puede volver a entrar.
+        res = APIClient().post('/api/v1/auth/login/', {'email': 'ana', 'password': 'secreta-123'}, format='json')
+        self.assertEqual(res.status_code, 401)
+
+    def test_wrong_password_keeps_the_account(self):
+        res = self.api.post('/api/v1/me/delete/', {'password': 'nope'}, format='json')
+        self.assertEqual(res.status_code, 400)
+        self.assertIn('password', res.json())
+        self.assertTrue(User.objects.filter(pk=self.user.pk).exists())
+
+    def test_last_trainer_cannot_delete_but_others_can(self):
+        api = APIClient()
+        api.force_authenticate(self.trainer)
+        res = api.get('/api/v1/me/delete/')
+        self.assertFalse(res.json()['can_delete'])
+        self.assertIn('único entrenador', res.json()['reason'])
+        res = api.post('/api/v1/me/delete/', {'password': 'x'}, format='json')
+        self.assertEqual(res.status_code, 400)
+        self.assertTrue(User.objects.filter(pk=self.trainer.pk).exists())
+
+        User.objects.create_user(username='t2', email='t2@demo.com', password='x', role='admin')
+        res = api.post('/api/v1/me/delete/', {'password': 'x'}, format='json')
+        self.assertEqual(res.status_code, 204)
+        self.assertFalse(User.objects.filter(pk=self.trainer.pk).exists())
+        # Sus clientes siguen ahí.
+        self.assertTrue(ClientProfile.objects.filter(pk=self.profile.pk).exists())

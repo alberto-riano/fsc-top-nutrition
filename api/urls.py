@@ -11,6 +11,7 @@ urlpatterns = [
 
     path('me/', views.MeView.as_view(), name='me'),
     path('me/profile/', views.MyClientProfileView.as_view(), name='my-profile'),
+    path('me/delete/', views.AccountDeleteView.as_view(), name='account-delete'),
 
     path('bonos/', views.BonoListView.as_view(), name='bonos'),
     path('metrics/body/', views.BodyMeasurementListView.as_view(), name='body-measurements'),
